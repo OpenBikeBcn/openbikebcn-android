@@ -10,6 +10,7 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
+import com.ryblade.openbikebcn.FetchAPITask;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -28,9 +29,16 @@ public class MainActivity extends AppCompatActivity {
 
         GeoPoint startPoint = new GeoPoint(41.3833, 2.1833);
         mapController.setCenter(startPoint);
+
+
+        this.updateBikesDatabase();
+
+
     }
 
-
+    private void updateBikesDatabase() {
+        new FetchAPITask(this).execute();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
