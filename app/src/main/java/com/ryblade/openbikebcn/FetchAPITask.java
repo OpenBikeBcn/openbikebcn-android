@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -91,30 +93,29 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
             nearbyStations = stationObject.getString(NEARBY_STATIONS);
             status = stationObject.getString(STATUS_STATION);
 
-            /* Database
             ContentValues rankValues = new ContentValues();
-            rankValues.put(RanksEntry.COLUMN_POSITION, pos);
-            rankValues.put(RanksEntry.COLUMN_NAME, name);
-            rankValues.put(RanksEntry.COLUMN_COUNTRY, country);
-            rankValues.put(RanksEntry.COLUMN_POINTS, points);
-            rankValues.put(RanksEntry.COLUMN_EARNINGS, earnings);
-            rankValues.put(RanksEntry.COLUMN_HEIGHT, height);
-            rankValues.put(RanksEntry.COLUMN_WEIGHT, weight);
-            rankValues.put(RanksEntry.COLUMN_BORN, born);
-            rankValues.put(RanksEntry.COLUMN_HAND, hand);
-            rankValues.put(RanksEntry.COLUMN_BIRTHPLACE, birthplace);
+            rankValues.put(StationsEntry.COLUMN_ID, id);
+            rankValues.put(StationsEntry.COLUMN_TYPE, type);
+            rankValues.put(StationsEntry.COLUMN_LATITUDE, latitude);
+            rankValues.put(StationsEntry.COLUMN_LONGITUDE, longitude);
+            rankValues.put(StationsEntry.COLUMN_STREETNAME, streetName);
+            rankValues.put(StationsEntry.COLUMN_STREETNUMBER, streetNumber);
+            rankValues.put(StationsEntry.COLUMN_ALTITUDE, altitude);
+            rankValues.put(StationsEntry.COLUMN_SLOTS, slots);
+            rankValues.put(StationsEntry.COLUMN_BIKES, bikes);
+            rankValues.put(StationsEntry.COLUMN_NEARBYSTATIONS, nearbyStations);
+            rankValues.put(StationsEntry.COLUMN_STATUS, status);
 
             cVVector.add(rankValues);
-            */
+
         }
-        /* Database
         if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
-            mContext.getContentResolver().delete(RanksEntry.CONTENT_URI, null, null);
-            mContext.getContentResolver().bulkInsert(RanksEntry.CONTENT_URI, cvArray);
+            mContext.getContentResolver().delete(StationsEntry.CONTENT_URI, null, null);
+            mContext.getContentResolver().bulkInsert(StationsEntry.CONTENT_URI, cvArray);
 
-        }*/
+        }
     }
 
     @Override
