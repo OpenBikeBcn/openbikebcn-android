@@ -1,56 +1,53 @@
 package com.ryblade.openbikebcn;
 
-import android.app.LoaderManager;
-import android.database.Cursor;
-import android.net.Uri;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
 import com.ryblade.openbikebcn.FetchAPITask;
-import com.ryblade.openbikebcn.Model.Station;
-
-import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity {
 
-    private Utils utilsManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        utilsManager = Utils.getInstance();
-
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         MapView mapView = (MapView) findViewById(R.id.map);
+
+
         IMapController mapController = mapView.getController();
         mapController.setZoom(15);
 
         GeoPoint startPoint = new GeoPoint(41.3833, 2.1833);
         mapController.setCenter(startPoint);
 
+        Drawable dr = new BitmapDrawable(((View) getResources().getLayout(R.layout.marker_layout)).getDrawingCache());
+
+        Marker startMarker = new Marker(mapView);
+        startMarker.setPosition(startPoint);
+        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        startMarker.setIcon(dr);
+        startMarker.setTitle("Start point");
+        mapView.getOverlays().add(startMarker);
+
+        mapView.invalidate();
+
 
         this.updateBikesDatabase();
 
-
-
-        ArrayList<Station> listOfStations = utilsManager.getAllStations(this);
-
-        for (Station stat : listOfStations) {
-
-            System.out.println(stat.getId() + " - " + stat.getStreetName());
-
-        }
 
     }
 
@@ -79,6 +76,4 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
 }
