@@ -1,19 +1,15 @@
 package com.ryblade.openbikebcn;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.osmdroid.util.BoundingBoxE6;
+import org.osmdroid.api.IMapController;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,23 +22,12 @@ public class MainActivity extends AppCompatActivity {
 
         MapView mapView = (MapView) findViewById(R.id.map);
 
-        GeoPoint geoPoint1 = new GeoPoint(41, 2);
-        GeoPoint geoPoint2 = new GeoPoint(41, 3);
-        GeoPoint geoPoint3 = new GeoPoint(42, 2);
-        GeoPoint geoPoint4 = new GeoPoint(42, 3);
 
-        ArrayList<GeoPoint> arrayGeo = new ArrayList<>();
-        arrayGeo.add(geoPoint1);
-        arrayGeo.add(geoPoint2);
-        arrayGeo.add(geoPoint3);
-        arrayGeo.add(geoPoint4);
+        IMapController mapController = mapView.getController();
+        mapController.setZoom(15);
 
-        BoundingBoxE6 bb = BoundingBoxE6.fromGeoPoints(arrayGeo);
-
-        mapView.zoomToBoundingBox(bb);
-
-        mapView.setMaxZoomLevel(5);
-        mapView.setMinZoomLevel(5);
+        GeoPoint startPoint = new GeoPoint(41.3833, 2.1833);
+        mapController.setCenter(startPoint);
     }
 
 
