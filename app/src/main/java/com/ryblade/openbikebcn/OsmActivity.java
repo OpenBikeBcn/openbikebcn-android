@@ -10,6 +10,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.ryblade.openbikebcn.Model.Station;
@@ -69,7 +70,7 @@ public class OsmActivity extends Activity implements LocationListener {
             location = locationManager.getLastKnownLocation(provider);
             if (location != null)
             {
-                updateCurrentLocation(new GeoPoint(location));
+                updateCurrentLocation(new GeoPoint(location), true);
                 locationManager.requestLocationUpdates(provider, 0, 0, this);
                 break;
             }
@@ -81,7 +82,7 @@ public class OsmActivity extends Activity implements LocationListener {
             location = new Location(LocationManager.GPS_PROVIDER);
             location.setLatitude(MAP_DEFAULT_LATITUDE);
             location.setLongitude(MAP_DEFAULT_LONGITUDE);
-            updateCurrentLocation(new GeoPoint(location));
+            updateCurrentLocation(new GeoPoint(location), true);
         }
 
         ArrayList<Station> stations = Utils.getInstance().getAllStations(this);
@@ -115,11 +116,12 @@ public class OsmActivity extends Activity implements LocationListener {
         mapView.invalidate();
     }
 
-    public void updateCurrentLocation(GeoPoint point) {
+    public void updateCurrentLocation(GeoPoint point, boolean center) {
         currentPosition.setPosition(point);
         if(!mapView.getOverlays().contains(currentPosition))
             mapView.getOverlays().add(currentPosition);
-        mapController.setCenter(point);
+        if(center)
+            mapController.animateTo(point);
         mapView.invalidate();
     }
 
@@ -129,7 +131,7 @@ public class OsmActivity extends Activity implements LocationListener {
         int lat = (int) (location.getLatitude() * 1E6);
         int lng = (int) (location.getLongitude() * 1E6);
         GeoPoint point = new GeoPoint(lat, lng);
-        this.updateCurrentLocation(point);
+        this.updateCurrentLocation(point, false);
     }
 
     @Override
@@ -151,5 +153,9 @@ public class OsmActivity extends Activity implements LocationListener {
     {
         // TODO Auto-generated method stub
 
+    }
+
+    public void goToLocation(View v) {
+        mapController.animateTo(currentPosition.getPosition());
     }
 }
