@@ -4,19 +4,22 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.ryblade.openbikebcn.Model.Station;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.overlays.Marker;
+import org.osmdroid.bonuspack.overlays.Polygon;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
@@ -28,6 +31,7 @@ import java.util.ArrayList;
 public class OsmActivity extends Activity implements LocationListener {
 
     private Marker currentPosition;
+    private Polygon accuracyCircle;
     private IMapController mapController;
     private MapView mapView;
 
@@ -44,9 +48,14 @@ public class OsmActivity extends Activity implements LocationListener {
         mapView.setClickable(true);
 
         currentPosition = new Marker(mapView);
-        currentPosition.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        currentPosition.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
         currentPosition.setIcon(getResources().getDrawable(R.drawable.person));
         currentPosition.setTitle("My Position");
+
+        accuracyCircle = new Polygon(this);
+        accuracyCircle.setFillColor(Color.argb(80,135,206,250));
+        accuracyCircle.setStrokeColor(Color.BLUE);
+        accuracyCircle.setStrokeWidth(2);
 
         mapController = mapView.getController();
         mapController.setZoom(18);
@@ -70,7 +79,7 @@ public class OsmActivity extends Activity implements LocationListener {
             location = locationManager.getLastKnownLocation(provider);
             if (location != null)
             {
-                updateCurrentLocation(new GeoPoint(location), true);
+                updateCurrentLocation(new GeoPoint(location), location.getAccuracy(), true);
                 locationManager.requestLocationUpdates(provider, 0, 0, this);
                 break;
             }
@@ -82,7 +91,7 @@ public class OsmActivity extends Activity implements LocationListener {
             location = new Location(LocationManager.GPS_PROVIDER);
             location.setLatitude(MAP_DEFAULT_LATITUDE);
             location.setLongitude(MAP_DEFAULT_LONGITUDE);
-            updateCurrentLocation(new GeoPoint(location), true);
+            updateCurrentLocation(new GeoPoint(location), 0, true);
         }
 
         ArrayList<Station> stations = Utils.getInstance().getAllStations(this);
@@ -110,16 +119,27 @@ public class OsmActivity extends Activity implements LocationListener {
             stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
             stationMarker.setIcon(icon);
             stationMarker.setTitle(String.valueOf(sta.getId()));
+            stationMarker.setSnippet(String.valueOf(sta.getBikes()));
+            stationMarker.setRelatedObject(sta);
+            stationMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    return false;
+                }
+            });
             mapView.getOverlays().add(stationMarker);
         }
 
         mapView.invalidate();
     }
 
-    public void updateCurrentLocation(GeoPoint point, boolean center) {
+    public void updateCurrentLocation(GeoPoint point, float accuracy, boolean center) {
         currentPosition.setPosition(point);
-        if(!mapView.getOverlays().contains(currentPosition))
+        accuracyCircle.setPoints(Polygon.pointsAsCircle(point, accuracy));
+        if(!mapView.getOverlays().contains(currentPosition)) {
             mapView.getOverlays().add(currentPosition);
+            mapView.getOverlays().add(accuracyCircle);
+        }
         if(center)
             mapController.animateTo(point);
         mapView.invalidate();
@@ -131,7 +151,7 @@ public class OsmActivity extends Activity implements LocationListener {
         int lat = (int) (location.getLatitude() * 1E6);
         int lng = (int) (location.getLongitude() * 1E6);
         GeoPoint point = new GeoPoint(lat, lng);
-        this.updateCurrentLocation(point, false);
+        this.updateCurrentLocation(point, location.getAccuracy(), false);
     }
 
     @Override
