@@ -8,4 +8,7 @@
     <string name="bikesTag">Bikes:</string>
     <string name="slotsTag">Slots:</string>
     <string name="menuButtonDescr">Menu Button</string>
+    <string name="addToFavourites">Add to favourites</string>
+    <string name="startRoute">Start route</string>
+    <string name="endRoute">End route</string>
 </resources>
