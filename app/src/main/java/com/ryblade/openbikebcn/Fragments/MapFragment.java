@@ -1,7 +1,10 @@
 package com.ryblade.openbikebcn.Fragments;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.app.ActionBar;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -10,12 +13,16 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.R;
@@ -24,6 +31,9 @@ import com.ryblade.openbikebcn.Utils;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
+import org.osmdroid.events.MapListener;
+import org.osmdroid.events.ScrollEvent;
+import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
@@ -39,6 +49,8 @@ public class MapFragment extends Fragment implements LocationListener {
     private Polygon accuracyCircle;
     private IMapController mapController;
     private MapView mapView;
+    private LinearLayout stationInfo;
+    private boolean isStationInfoHiden;
 
     private final double MAP_DEFAULT_LATITUDE = 41.38791700;
     private final double MAP_DEFAULT_LONGITUDE = 2.16991870;
@@ -60,6 +72,7 @@ public class MapFragment extends Fragment implements LocationListener {
         View rootView = inflater.inflate(R.layout.map_fragment, container, false);
 
         initMapView(rootView);
+        initStationInfo(rootView);
 
         return rootView;
     }
@@ -75,6 +88,19 @@ public class MapFragment extends Fragment implements LocationListener {
         mapView = (MapView) rootView.findViewById(R.id.map);
         mapView.setMultiTouchControls(true);
         mapView.setClickable(true);
+
+        isStationInfoHiden = true;
+
+        mapView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(!isStationInfoHiden) {
+                    stationInfo.animate().translationY(stationInfo.getHeight());
+                    isStationInfoHiden = true;
+                }
+                return false;
+            }
+        });
 
         currentPosition = new Marker(mapView);
         currentPosition.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER);
@@ -154,6 +180,15 @@ public class MapFragment extends Fragment implements LocationListener {
             stationMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    mapController.animateTo(marker.getPosition());
+                    Station station = ((Station) marker.getRelatedObject());
+                    ((TextView) stationInfo.findViewById(R.id.stationId)).setText(String.valueOf(station.getId()));
+                    ((TextView) stationInfo.findViewById(R.id.stationAddress)).setText(String.format("%s, %s",
+                            station.getStreetName(), String.valueOf(station.getStreetNumber())));
+                    ((TextView) stationInfo.findViewById(R.id.stationBikes)).setText(String.valueOf(station.getBikes()));
+                    ((TextView) stationInfo.findViewById(R.id.stationSlots)).setText(String.valueOf(station.getSlots()));
+                    stationInfo.animate().translationY(-stationInfo.getHeight());
+                    isStationInfoHiden = false;
                     return false;
                 }
             });
@@ -161,6 +196,11 @@ public class MapFragment extends Fragment implements LocationListener {
         }
 
         mapView.invalidate();
+    }
+
+    public void initStationInfo(View rootView) {
+        stationInfo = ((LinearLayout) rootView.findViewById(R.id.stationInfo));
+        stationInfo.setBackgroundColor(Color.LTGRAY);
     }
 
     public void updateCurrentLocation(GeoPoint point, float accuracy, boolean center) {

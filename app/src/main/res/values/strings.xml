@@ -5,4 +5,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="api_bicing">http://wservice.viabicing.cat/v2/stations</string>
     <string name="go_to_location_descr">Button to center map on location</string>
+    <string name="bikesTag">Bikes:</string>
+    <string name="slotsTag">Slots:</string>
+    <string name="menuButtonDescr">Menu Button</string>
 </resources>
