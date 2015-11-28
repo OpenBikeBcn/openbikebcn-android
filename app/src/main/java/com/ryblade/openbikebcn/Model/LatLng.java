@@ -6,8 +6,8 @@ package com.ryblade.openbikebcn.Model;
  */
 public class LatLng {
 
-    private Double Lat;
-    private Double Lon;
+    private double Lat;
+    private double Lon;
 
     public LatLng() {}
 
@@ -16,11 +16,11 @@ public class LatLng {
         Lon = lon;
     }
 
-    public Double getLat() {
+    public double getLat() {
         return Lat;
     }
 
-    public Double getLon() {
+    public double getLon() {
         return Lon;
     }
 }

@@ -28,7 +28,9 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ryblade.openbikebcn.FetchRouteAPITask;
 import com.ryblade.openbikebcn.Model.LatLng;
+import com.ryblade.openbikebcn.Model.Route;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.R;
 import com.ryblade.openbikebcn.Utils;
@@ -52,7 +54,11 @@ import java.util.List;
 /**
  * Created by alexmorral on 25/11/15.
  */
-public class MapFragment extends Fragment implements LocationListener {
+
+
+
+
+public class MapFragment extends Fragment implements LocationListener, OnRouteFetched{
 
     private final String LOG_TAG = MapFragment.class.getSimpleName();
 
@@ -70,6 +76,7 @@ public class MapFragment extends Fragment implements LocationListener {
 
     private final double MAP_DEFAULT_LATITUDE = 41.38791700;
     private final double MAP_DEFAULT_LONGITUDE = 2.16991870;
+
 
 
     public MapFragment() {
@@ -337,26 +344,8 @@ public class MapFragment extends Fragment implements LocationListener {
 
         mapView.invalidate();
 
-        String decod = "alt|mAkkhcC`GbK~g@sm@xCqDxB~B`C^fCi@xBeCbVqZ|PsRzPgVnH{JrFkH|Zc_@j@s@dA}Al@eCFyC~He@pBDtY`YjAaCl@|@hC`Ct@ItDvD\\m@qBiC\\k@";
+        new FetchRouteAPITask(getActivity(), this).execute(startPoint, endPoint);
 
-        List<LatLng> list = decode(decod);
-        Drawable darkRed = getResources().getDrawable(R.drawable.darkred_marker);
-
-        for(LatLng point : list) {
-            Drawable icon;
-            icon = darkRed;
-
-            Marker stationMarker = new Marker(mapView);
-            stationMarker.setPosition(new GeoPoint(point.getLat(), point.getLon()));
-            stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            stationMarker.setIcon(icon);
-            stationMarker.setTitle(String.valueOf(2));
-            stationMarker.setSnippet(String.valueOf(2));
-
-            mapView.getOverlays().add(stationMarker);
-        }
-
-        mapView.invalidate();
     }
 
 
@@ -395,5 +384,32 @@ public class MapFragment extends Fragment implements LocationListener {
         }
 
         return path;
+    }
+
+
+
+    public void OnRouteFetched(Route route) {
+        Drawable darkRed = getResources().getDrawable(R.drawable.darkred_marker);
+        if (route != null) {
+            for (LatLng point : route.getRoute()) {
+                Drawable icon;
+                icon = darkRed;
+
+                Marker stationMarker = new Marker(mapView);
+                stationMarker.setPosition(new GeoPoint(point.getLat(), point.getLon()));
+                stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+                stationMarker.setIcon(icon);
+                stationMarker.setTitle(String.valueOf(2));
+                stationMarker.setSnippet(String.valueOf(2));
+
+                mapView.getOverlays().add(stationMarker);
+            }
+
+            mapView.invalidate();
+
+        } else {
+            Toast.makeText(getContext(),"No routes found",Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

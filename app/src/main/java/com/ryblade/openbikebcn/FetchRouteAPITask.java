@@ -5,8 +5,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.ryblade.openbikebcn.Fragments.OnRouteFetched;
 import com.ryblade.openbikebcn.Model.Route;
-import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,25 +17,28 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Vector;
 
 /**
  * Created by alexmorral on 21/11/15.
  */
-public class FetchRouteAPITask extends AsyncTask <Void, Void, Void>{
+public class FetchRouteAPITask extends AsyncTask <GeoPoint, Void, Route> {
 
+    private OnRouteFetched listener;
 
     private final String LOG_TAG = FetchRouteAPITask.class.getSimpleName();
     private final Context mContext;
 
-    public FetchRouteAPITask(Context context) {
+    public FetchRouteAPITask(Context context, OnRouteFetched listener) {
         mContext = context;
+        this.listener = listener;
     }
 
 
-    private void getRouteDataFromJson(String routeJSONString) throws JSONException {
+    private Route getRouteDataFromJson(String routeJSONString) throws JSONException {
 
 
         Route route = new Route();
@@ -64,11 +67,11 @@ public class FetchRouteAPITask extends AsyncTask <Void, Void, Void>{
         route.setStartPoint(new GeoPoint(startLat, startLon));
         route.setEndPoint(new GeoPoint(endLat, endLon));
 
-
+        return route;
     }
 
     @Override
-    protected Void doInBackground(Void... voids) {
+    protected Route doInBackground(GeoPoint... geoPoints) {
 
 
         // These two need to be declared outside the try/catch
@@ -80,15 +83,43 @@ public class FetchRouteAPITask extends AsyncTask <Void, Void, Void>{
         String routeJsonString = null;
 
 
+        String postJsonString = null;
+
+//{"locations":[{"lat":41.380593,"lon": 2.167418},{"lat": 41.376858,"lon": 2.169811}],"costing":"pedestrian"
+
         try {
-            final String MAPZEN_API_URL = "valhalla.mapzen.com/route?api_key=valhalla-kn-nbBI";
+
+            JSONObject paramJsonObject = new JSONObject();
+            JSONArray locationsArray = new JSONArray();
+            JSONObject startPoint = new JSONObject();
+            startPoint.put("lat", geoPoints[0].getLatitude());
+            startPoint.put("lon", geoPoints[0].getLatitude());
+            JSONObject endPoint = new JSONObject();
+            endPoint.put("lat", geoPoints[1].getLatitude());
+            endPoint.put("lon", geoPoints[1].getLatitude());
+            locationsArray.put(startPoint);
+            locationsArray.put(endPoint);
+
+            paramJsonObject.put("locations", locationsArray);
+            paramJsonObject.put("costing", "pedestrian");
+
+
+
+            final String MAPZEN_API_URL = "http://valhalla.mapzen.com/route?api_key=valhalla-kn-nbBI";
 
             URL url = new URL(MAPZEN_API_URL);
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
             urlConnection.connect();
+
+            OutputStream os = urlConnection.getOutputStream();
+            os.write(paramJsonObject.toString().getBytes("UTF-8"));
+            os.flush();
+            os.close();
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
@@ -117,6 +148,11 @@ public class FetchRouteAPITask extends AsyncTask <Void, Void, Void>{
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             return null;
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Error ", e);
+            // If the code didn't successfully get the weather data, there's no point in attemping
+            // to parse it.
+            return null;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -131,7 +167,7 @@ public class FetchRouteAPITask extends AsyncTask <Void, Void, Void>{
         }
 
         try {
-            getRouteDataFromJson(routeJsonString);
+            return getRouteDataFromJson(routeJsonString);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();
@@ -140,6 +176,11 @@ public class FetchRouteAPITask extends AsyncTask <Void, Void, Void>{
         return null;
     }
 
+    @Override
+    protected void onPostExecute(Route route) {
 
+        listener.OnRouteFetched(route);
+        super.onPostExecute(route);
+    }
 }
 
