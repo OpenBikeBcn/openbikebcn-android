@@ -14,9 +14,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.R;
@@ -32,6 +35,10 @@ import com.ryblade.openbikebcn.Utils;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
+import org.osmdroid.bonuspack.overlays.Polyline;
+import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.events.MapListener;
 import org.osmdroid.events.ScrollEvent;
 import org.osmdroid.events.ZoomEvent;
@@ -45,6 +52,7 @@ import java.util.ArrayList;
  */
 public class MapFragment extends Fragment implements LocationListener {
 
+    private final String LOG_TAG = MapFragment.class.getSimpleName();
 
     private Marker currentPosition;
     private Polygon accuracyCircle;
@@ -52,6 +60,11 @@ public class MapFragment extends Fragment implements LocationListener {
     private MapView mapView;
     private LinearLayout stationInfo;
     private boolean isStationInfoHiden;
+
+    private Station currentStation;
+
+    private Station currentStartStation;
+    private Station currentEndStation;
 
     private final double MAP_DEFAULT_LATITUDE = 41.38791700;
     private final double MAP_DEFAULT_LONGITUDE = 2.16991870;
@@ -83,7 +96,29 @@ public class MapFragment extends Fragment implements LocationListener {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
+        if (id == R.id.action_add_favourites) {
+
+
+            return true;
+        } else if (id == R.id.action_start_route) {
+                startRouteClicked();
+
+            return true;
+        } else if (id == R.id.action_end_route) {
+               endRouteClicked();
+
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     private void initMapView(View rootView) {
         mapView = (MapView) rootView.findViewById(R.id.map);
@@ -95,10 +130,7 @@ public class MapFragment extends Fragment implements LocationListener {
         mapView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if(!isStationInfoHiden) {
-                    stationInfo.animate().translationY(stationInfo.getHeight());
-                    isStationInfoHiden = true;
-                }
+                dismissMapShownInfo();
                 return false;
             }
         });
@@ -190,6 +222,7 @@ public class MapFragment extends Fragment implements LocationListener {
                     ((TextView) stationInfo.findViewById(R.id.stationSlots)).setText(String.valueOf(station.getSlots()));
                     stationInfo.animate().translationY(-stationInfo.getHeight());
                     isStationInfoHiden = false;
+                    currentStation = station;
                     return false;
                 }
             });
@@ -246,7 +279,60 @@ public class MapFragment extends Fragment implements LocationListener {
 
     }
 
+    private void dismissMapShownInfo() {
+        if(!isStationInfoHiden) {
+            stationInfo.animate().translationY(stationInfo.getHeight());
+            isStationInfoHiden = true;
+            currentStation = null;
+        }
+    }
+
     public void goToLocation(View v) {
         mapController.animateTo(currentPosition.getPosition());
+    }
+
+    public void startRouteClicked() {
+        Log.v(LOG_TAG,"Start route clicked");
+        currentStartStation = currentStation;
+        dismissMapShownInfo();
+    }
+
+    public void endRouteClicked() {
+        Log.v(LOG_TAG,"End route clicked");
+        if (currentStartStation != null) {
+            currentEndStation = currentStation;
+
+            /**
+             * TODO
+             * Create the map route
+             */
+            drawRoute();
+
+        } else {
+            Toast.makeText(getActivity(), "Please, select a Start Station", Toast.LENGTH_SHORT).show();
+
+        }
+        dismissMapShownInfo();
+    }
+
+
+    public void drawRoute() {
+        RoadManager roadManager = new OSRMRoadManager();
+
+
+        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+
+        GeoPoint startPoint = new GeoPoint(currentStartStation.getLatitude(), currentStartStation.getLongitude());
+        waypoints.add(startPoint);
+        GeoPoint endPoint = new GeoPoint(currentEndStation.getLatitude(), currentEndStation.getLongitude());
+        waypoints.add(endPoint);
+
+        Road road = roadManager.getRoad(waypoints);
+
+        Polyline roadOverlay = RoadManager.buildRoadOverlay(road, getActivity());
+
+        mapView.getOverlays().add(roadOverlay);
+
+        mapView.invalidate();
     }
 }

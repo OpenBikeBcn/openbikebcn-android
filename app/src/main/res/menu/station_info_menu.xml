@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="@string/addToFavourites"/>
+    <item android:title="@string/addToFavourites"
+        android:id="@+id/action_add_favourites"/>
 
-    <item android:title="@string/startRoute"/>
+    <item android:title="@string/startRoute"
+        android:id="@+id/action_start_route"/>
 
-    <item android:title="@string/endRoute"/>
+    <item android:title="@string/endRoute"
+        android:id="@+id/action_end_route"/>
 
 </menu>
