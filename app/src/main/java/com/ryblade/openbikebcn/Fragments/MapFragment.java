@@ -28,6 +28,7 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ryblade.openbikebcn.Model.LatLng;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.R;
 import com.ryblade.openbikebcn.Utils;
@@ -46,6 +47,7 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by alexmorral on 25/11/15.
@@ -334,5 +336,64 @@ public class MapFragment extends Fragment implements LocationListener {
         mapView.getOverlays().add(roadOverlay);
 
         mapView.invalidate();
+
+        String decod = "alt|mAkkhcC`GbK~g@sm@xCqDxB~B`C^fCi@xBeCbVqZ|PsRzPgVnH{JrFkH|Zc_@j@s@dA}Al@eCFyC~He@pBDtY`YjAaCl@|@hC`Ct@ItDvD\\m@qBiC\\k@";
+
+        List<LatLng> list = decode(decod);
+        Drawable darkRed = getResources().getDrawable(R.drawable.darkred_marker);
+
+        for(LatLng point : list) {
+            Drawable icon;
+            icon = darkRed;
+
+            Marker stationMarker = new Marker(mapView);
+            stationMarker.setPosition(new GeoPoint(point.getLat(), point.getLon()));
+            stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            stationMarker.setIcon(icon);
+            stationMarker.setTitle(String.valueOf(2));
+            stationMarker.setSnippet(String.valueOf(2));
+
+            mapView.getOverlays().add(stationMarker);
+        }
+
+        mapView.invalidate();
+    }
+
+
+
+    public static List<LatLng> decode(final String encodedPath) {
+        int len = encodedPath.length();
+
+        // For speed we preallocate to an upper bound on the final length, then
+        // truncate the array before returning.
+        final List<LatLng> path = new ArrayList<LatLng>();
+        int index = 0;
+        int lat = 0;
+        int lng = 0;
+
+        while (index < len) {
+            int result = 1;
+            int shift = 0;
+            int b;
+            do {
+                b = encodedPath.charAt(index++) - 63 - 1;
+                result += b << shift;
+                shift += 5;
+            } while (b >= 0x1f);
+            lat += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+
+            result = 1;
+            shift = 0;
+            do {
+                b = encodedPath.charAt(index++) - 63 - 1;
+                result += b << shift;
+                shift += 5;
+            } while (b >= 0x1f);
+            lng += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+
+            path.add(new LatLng(lat * 1e-6, lng * 1e-6));
+        }
+
+        return path;
     }
 }
