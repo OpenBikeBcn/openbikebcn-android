@@ -14,7 +14,6 @@ public class StationsProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private StationsDbHelper mOpenHelper;
-    private FavouritesDbHelper mFavOpenHelper;
     private static final int STATION = 100;
     private static final int FAVOURITES = 101;
 
@@ -42,7 +41,6 @@ public class StationsProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         mOpenHelper = new StationsDbHelper(getContext());
-        mFavOpenHelper = new FavouritesDbHelper(getContext());
         return true;
     }
 
@@ -64,7 +62,7 @@ public class StationsProvider extends ContentProvider {
                 );
                 break;
             }case FAVOURITES: {
-                retCursor = mFavOpenHelper.getReadableDatabase().query(
+                retCursor = mOpenHelper.getReadableDatabase().query(
                         DBContract.FavouritesEntry.TABLE_NAME,
                         projection,
                         selection,
@@ -99,13 +97,12 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        final SQLiteDatabase db;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
 
         switch (match) {
             case STATION: {
-                db = mOpenHelper.getWritableDatabase();
                 long _id = db.insert(DBContract.StationsEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = DBContract.StationsEntry.buildStationUri(_id);
@@ -114,7 +111,6 @@ public class StationsProvider extends ContentProvider {
                 break;
             }
             case FAVOURITES: {
-                db = mFavOpenHelper.getWritableDatabase();
                 long _id = db.insert(DBContract.FavouritesEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = DBContract.FavouritesEntry.buildStationUri(_id);
@@ -131,17 +127,15 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        final SQLiteDatabase db;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
         int rowsDeleted;
         switch (match) {
             case STATION:
-                db = mOpenHelper.getWritableDatabase();
                 rowsDeleted = db.delete(
                         DBContract.StationsEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             case FAVOURITES:
-                db = mFavOpenHelper.getWritableDatabase();
                 rowsDeleted = db.delete(
                         DBContract.FavouritesEntry.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -159,17 +153,15 @@ public class StationsProvider extends ContentProvider {
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         final int match = sUriMatcher.match(uri);
-        final SQLiteDatabase db;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();;
         int rowsUpdated;
 
         switch (match) {
             case STATION:
-                db = mOpenHelper.getWritableDatabase();
                 rowsUpdated = db.update(DBContract.StationsEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
             case FAVOURITES:
-                db = mFavOpenHelper.getWritableDatabase();
                 rowsUpdated = db.update(DBContract.FavouritesEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
@@ -184,12 +176,11 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
-        final SQLiteDatabase db;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();;
         int returnCount;
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case STATION:
-                db = mOpenHelper.getWritableDatabase();
                 db.beginTransaction();
                 returnCount = 0;
                 try {
@@ -206,7 +197,6 @@ public class StationsProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
                 return returnCount;
             case FAVOURITES:
-                db = mFavOpenHelper.getWritableDatabase();
                 db.beginTransaction();
                 returnCount = 0;
                 try {

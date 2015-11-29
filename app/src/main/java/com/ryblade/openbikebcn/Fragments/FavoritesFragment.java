@@ -48,7 +48,7 @@ public class FavoritesFragment extends Fragment {
 
     private void init(View v) {
         ListView lv = ((ListView) v.findViewById(R.id.favouritesList));
-        StationArrayAdapter saa = new StationArrayAdapter(getContext(), Utils.getInstance().getFavouriteStations(getContext()));
+        StationArrayAdapter saa = new StationArrayAdapter(getContext(), Utils.getInstance().getFavouriteStations(getActivity()));
         lv.setAdapter(saa);
     }
 }
