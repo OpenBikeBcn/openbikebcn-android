@@ -93,10 +93,10 @@ public class FetchRouteAPITask extends AsyncTask <GeoPoint, Void, Route> {
             JSONArray locationsArray = new JSONArray();
             JSONObject startPoint = new JSONObject();
             startPoint.put("lat", geoPoints[0].getLatitude());
-            startPoint.put("lon", geoPoints[0].getLatitude());
+            startPoint.put("lon", geoPoints[0].getLongitude());
             JSONObject endPoint = new JSONObject();
             endPoint.put("lat", geoPoints[1].getLatitude());
-            endPoint.put("lon", geoPoints[1].getLatitude());
+            endPoint.put("lon", geoPoints[1].getLongitude());
             locationsArray.put(startPoint);
             locationsArray.put(endPoint);
 
@@ -105,7 +105,7 @@ public class FetchRouteAPITask extends AsyncTask <GeoPoint, Void, Route> {
 
 
 
-            final String MAPZEN_API_URL = "http://valhalla.mapzen.com/route?api_key=valhalla-kn-nbBI";
+            String MAPZEN_API_URL = "http://valhalla.mapzen.com/route?api_key=valhalla-kn-nbBI";
 
             URL url = new URL(MAPZEN_API_URL);
 
@@ -120,6 +120,10 @@ public class FetchRouteAPITask extends AsyncTask <GeoPoint, Void, Route> {
             os.write(paramJsonObject.toString().getBytes("UTF-8"));
             os.flush();
             os.close();
+
+
+
+
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
