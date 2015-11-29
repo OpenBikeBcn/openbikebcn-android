@@ -14,10 +14,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Fragments.MapFragment;
+import com.ryblade.openbikebcn.Model.Station;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -174,21 +174,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 if (id == R.id.action_add_favourites) {
                     if (MapFragment.class.isInstance(currentFragment)) {
-                        MapFragment mapFragment = (MapFragment)currentFragment;
-                        if(mapFragment.getStationSelected() != null)
-                            Utils.getInstance().addToFavourites(getApplicationContext(), mapFragment.getStationSelected());
+                        MapFragment mapFragment = (MapFragment) currentFragment;
+                        if (mapFragment.getStationSelected() != null)
+                            addToFavourites(mapFragment.getStationSelected());
 
                     }
                     return true;
                 } else if (id == R.id.action_start_route) {
                     if (MapFragment.class.isInstance(currentFragment)) {
-                        MapFragment mapFragment = (MapFragment)currentFragment;
+                        MapFragment mapFragment = (MapFragment) currentFragment;
                         mapFragment.startRouteClicked();
                     }
                     return true;
                 } else if (id == R.id.action_end_route) {
                     if (MapFragment.class.isInstance(currentFragment)) {
-                        MapFragment mapFragment = (MapFragment)currentFragment;
+                        MapFragment mapFragment = (MapFragment) currentFragment;
                         mapFragment.endRouteClicked();
                     }
                     return true;
@@ -197,5 +197,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
         popup.show();
+    }
+
+    public void addToFavourites(Station station) {
+        Utils.getInstance().addToFavourites(this, station);
     }
 }

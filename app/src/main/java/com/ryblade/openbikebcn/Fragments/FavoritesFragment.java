@@ -46,9 +46,10 @@ public class FavoritesFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private void init(View v) {
+    public void init(View v) {
         ListView lv = ((ListView) v.findViewById(R.id.favouritesList));
-        StationArrayAdapter saa = new StationArrayAdapter(getContext(), Utils.getInstance().getFavouriteStations(getActivity()));
+        ArrayList<Station> stations = Utils.getInstance().getFavouriteStations(getActivity());
+        StationArrayAdapter saa = new StationArrayAdapter(getContext(), stations, this);
         lv.setAdapter(saa);
     }
 }

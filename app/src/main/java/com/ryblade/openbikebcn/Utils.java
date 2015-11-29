@@ -117,17 +117,6 @@ public class Utils {
 
     public void addToFavourites(Context context, Station station) {
         ContentValues rankValues = new ContentValues();
-        /*rankValues.put(StationsEntry.COLUMN_ID, station.getId());
-        rankValues.put(StationsEntry.COLUMN_TYPE, station.getType());
-        rankValues.put(StationsEntry.COLUMN_LATITUDE, station.getLatitude());
-        rankValues.put(StationsEntry.COLUMN_LONGITUDE, station.getLongitude());
-        rankValues.put(StationsEntry.COLUMN_STREETNAME, station.getStreetName());
-        rankValues.put(StationsEntry.COLUMN_STREETNUMBER, station.getStreetNumber());
-        rankValues.put(StationsEntry.COLUMN_ALTITUDE, station.getAltitude());
-        rankValues.put(StationsEntry.COLUMN_SLOTS, station.getSlots());
-        rankValues.put(StationsEntry.COLUMN_BIKES, station.getBikes());
-        rankValues.put(StationsEntry.COLUMN_NEARBYSTATIONS, station.getNearbyStations());
-        rankValues.put(StationsEntry.COLUMN_STATUS, station.getStatus());*/
 
         rankValues.put(DBContract.FavouritesEntry.COLUMN_ID, station.getId());
         rankValues.put(DBContract.FavouritesEntry.COLUMN_TYPE, station.getType());
@@ -142,5 +131,10 @@ public class Utils {
         rankValues.put(DBContract.FavouritesEntry.COLUMN_STATUS, station.getStatus());
 
         context.getContentResolver().insert(DBContract.FavouritesEntry.CONTENT_URI,rankValues);
+    }
+
+    public void deleteFavourite(Context context, Station station) {
+        context.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI,
+                DBContract.FavouritesEntry.COLUMN_ID + "=" + station.getId(), null);
     }
 }

@@ -59,7 +59,6 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     private MapView mapView;
     private LinearLayout stationInfo;
     private boolean isStationInfoHiden;
-    private Station stationSelected;
 
     private Station currentStation;
 
@@ -251,7 +250,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     }
 
     public Station getStationSelected() {
-        return stationSelected;
+        return currentStation;
     }
 
     @Override

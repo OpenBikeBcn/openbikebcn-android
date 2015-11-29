@@ -2,24 +2,30 @@ package com.ryblade.openbikebcn;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Model.Station;
+import com.ryblade.openbikebcn.data.DBContract;
 
 import java.util.ArrayList;
 
 public class StationArrayAdapter extends ArrayAdapter<String> {
   private final Context context;
   private final ArrayList<Station> stations;
+  private FavoritesFragment favoritesFragment;
 
-  public StationArrayAdapter(Context context, ArrayList<Station> stations) {
+  public StationArrayAdapter(Context context, ArrayList<Station> stations, FavoritesFragment favoritesFragment) {
     super(context, R.layout.station_fav_item);
     this.context = context;
     this.stations = stations;
+    this.favoritesFragment = favoritesFragment;
   }
 
   @Override
@@ -33,6 +39,8 @@ public class StationArrayAdapter extends ArrayAdapter<String> {
     TextView address;
     TextView bikes;
     TextView slots;
+    ImageButton deleteButton;
+    Station station;
 
     public static PlaceHolder generate(View convertView) {
       PlaceHolder placeHolder = new PlaceHolder();
@@ -40,6 +48,7 @@ public class StationArrayAdapter extends ArrayAdapter<String> {
       placeHolder.address = (TextView) convertView.findViewById(R.id.stationAddress);
       placeHolder.bikes = (TextView) convertView.findViewById(R.id.stationBikes);
       placeHolder.slots = (TextView) convertView.findViewById(R.id.stationSlots);
+      placeHolder.deleteButton = (ImageButton) convertView.findViewById(R.id.deleteStation);
       return placeHolder;
     }
 
@@ -47,7 +56,7 @@ public class StationArrayAdapter extends ArrayAdapter<String> {
 
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
-    PlaceHolder placeHolder;
+    final PlaceHolder placeHolder;
     if (convertView == null) {
       convertView = View.inflate(context, R.layout.station_fav_item, null);
       placeHolder = PlaceHolder.generate(convertView);
@@ -56,12 +65,21 @@ public class StationArrayAdapter extends ArrayAdapter<String> {
       placeHolder = (PlaceHolder) convertView.getTag();
     }
 
-    Station station = stations.get(position);
+    final Station station = stations.get(position);
 
-    placeHolder.id.setText(station.getId());
+    placeHolder.station = station;
+    placeHolder.id.setText(String.valueOf(station.getId()));
     placeHolder.address.setText(String.format("%s, %s", station.getStreetName(), station.getStreetNumber()));
     placeHolder.bikes.setText(String.valueOf(station.getBikes()));
     placeHolder.slots.setText(String.valueOf(station.getSlots()));
+    placeHolder.deleteButton.setOnTouchListener(new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            Utils.getInstance().deleteFavourite(context, placeHolder.station);
+            favoritesFragment.init(favoritesFragment.getView());
+            return false;
+        }
+    });
 
     return convertView;
   }
