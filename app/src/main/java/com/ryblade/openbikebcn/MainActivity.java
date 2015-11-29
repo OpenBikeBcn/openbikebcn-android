@@ -2,6 +2,7 @@ package com.ryblade.openbikebcn;
 
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -13,13 +14,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Fragments.MapFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    private MapFragment mapFragment;
+    private Fragment currentFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +44,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        mapFragment = new MapFragment();
-
         if (savedInstanceState == null) {
+            MapFragment mapFragment = new MapFragment();
+            currentFragment = mapFragment;
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, mapFragment)
                     .commit();
@@ -75,6 +77,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return false;
         }
 
+        if (id == R.id.action_add_favourites) {
+            if (currentFragment.getClass().isInstance(MapFragment.class)) {
+                MapFragment mapFragment = (MapFragment)currentFragment;
+
+            }
+            return true;
+        } else if (id == R.id.action_start_route) {
+            if (currentFragment.getClass().isInstance(MapFragment.class)) {
+                MapFragment mapFragment = (MapFragment)currentFragment;
+                mapFragment.startRouteClicked();
+            }
+            return true;
+        } else if (id == R.id.action_end_route) {
+            if (currentFragment.getClass().isInstance(MapFragment.class)) {
+                MapFragment mapFragment = (MapFragment)currentFragment;
+                mapFragment.endRouteClicked();
+            }
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -88,7 +110,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_map) {
             // Open map fragment
 
-            mapFragment = new MapFragment();
+            MapFragment newFragment = new MapFragment();
+            currentFragment = newFragment;
 
 //            Bundle args = new Bundle();
 //            args.putString("lang", lang);
@@ -98,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.container, mapFragment);
+            transaction.replace(R.id.container, currentFragment);
             transaction.addToBackStack(null);
 
             // Commit the transaction
@@ -108,6 +131,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Open fav fragment
 
             FavoritesFragment newFragment = new FavoritesFragment();
+
+            currentFragment = newFragment;
 
 //            Bundle args = new Bundle();
 //            args.putString("lang", lang);
@@ -142,11 +167,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PopupMenu popup = new PopupMenu(this, v);
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.station_info_menu, popup.getMenu());
-        popup.show();
-    }
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
 
-    public void addToFavourites(MenuItem item) {
-        if(mapFragment.getStationSelected() != null)
-            Utils.getInstance().addToFavourites(this, mapFragment.getStationSelected());
+                if (id == R.id.action_add_favourites) {
+                    if (MapFragment.class.isInstance(currentFragment)) {
+                        MapFragment mapFragment = (MapFragment)currentFragment;
+                        if(mapFragment.getStationSelected() != null)
+                            Utils.getInstance().addToFavourites(getApplicationContext(), mapFragment.getStationSelected());
+
+                    }
+                    return true;
+                } else if (id == R.id.action_start_route) {
+                    if (MapFragment.class.isInstance(currentFragment)) {
+                        MapFragment mapFragment = (MapFragment)currentFragment;
+                        mapFragment.startRouteClicked();
+                    }
+                    return true;
+                } else if (id == R.id.action_end_route) {
+                    if (MapFragment.class.isInstance(currentFragment)) {
+                        MapFragment mapFragment = (MapFragment)currentFragment;
+                        mapFragment.endRouteClicked();
+                    }
+                    return true;
+                }
+                return true;
+            }
+        });
+        popup.show();
     }
 }
