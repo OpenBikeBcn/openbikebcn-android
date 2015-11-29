@@ -19,6 +19,8 @@ import com.ryblade.openbikebcn.Fragments.MapFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
+    private MapFragment mapFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,10 +42,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mapFragment = new MapFragment();
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MapFragment())
+                    .add(R.id.container, mapFragment)
                     .commit();
         }
 
@@ -85,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (id == R.id.nav_map) {
             // Open map fragment
 
-            MapFragment newFragment = new MapFragment();
+            mapFragment = new MapFragment();
 
 //            Bundle args = new Bundle();
 //            args.putString("lang", lang);
@@ -95,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             // Replace whatever is in the fragment_container view with this fragment,
             // and add the transaction to the back stack so the user can navigate back
-            transaction.replace(R.id.container, newFragment);
+            transaction.replace(R.id.container, mapFragment);
             transaction.addToBackStack(null);
 
             // Commit the transaction
@@ -140,5 +143,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         MenuInflater inflater = popup.getMenuInflater();
         inflater.inflate(R.menu.station_info_menu, popup.getMenu());
         popup.show();
+    }
+
+    public void addToFavourites(MenuItem item) {
+        if(mapFragment.getStationSelected() != null)
+            Utils.getInstance().addToFavourites(this, mapFragment.getStationSelected());
     }
 }

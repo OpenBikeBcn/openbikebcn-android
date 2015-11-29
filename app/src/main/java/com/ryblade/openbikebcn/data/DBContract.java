@@ -15,6 +15,8 @@ public class DBContract  {
 
     public static final String PATH_STATIONS = "stations";
 
+    public static final String PATH_FAVOURITES = "favourites";
+
 
     /* Inner class that defines the table contents of the location table */
     public static final class StationsEntry implements BaseColumns {
@@ -29,6 +31,40 @@ public class DBContract  {
 
         // Table name
         public static final String TABLE_NAME = "stations";
+
+
+
+
+        public static final String COLUMN_ID = "id";
+        public static final String COLUMN_TYPE = "type";
+        public static final String COLUMN_LATITUDE = "latitude";
+        public static final String COLUMN_LONGITUDE = "longitude";
+        public static final String COLUMN_STREETNAME = "streetName";
+        public static final String COLUMN_STREETNUMBER = "streetNumber";
+        public static final String COLUMN_ALTITUDE = "altitude";
+        public static final String COLUMN_SLOTS = "slots";
+        public static final String COLUMN_BIKES = "bikes";
+        public static final String COLUMN_NEARBYSTATIONS = "nearbyStations";
+        public static final String COLUMN_STATUS = "status";
+
+        public static Uri buildStationUri(long id) {
+            return ContentUris.withAppendedId(CONTENT_URI, id);
+        }
+    }
+
+    /* Inner class that defines the table contents of the location table */
+    public static final class FavouritesEntry implements BaseColumns {
+
+        public static final Uri CONTENT_URI =
+                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVOURITES).build();
+
+        public static final String CONTENT_TYPE =
+                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_FAVOURITES;
+        public static final String CONTENT_ITEM_TYPE =
+                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_FAVOURITES;
+
+        // Table name
+        public static final String TABLE_NAME = "favourites";
 
 
 

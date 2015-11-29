@@ -13,6 +13,7 @@ import com.ryblade.openbikebcn.MainActivity;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.R;
 import com.ryblade.openbikebcn.StationArrayAdapter;
+import com.ryblade.openbikebcn.Utils;
 
 import java.util.ArrayList;
 
@@ -47,7 +48,7 @@ public class FavoritesFragment extends Fragment {
 
     private void init(View v) {
         ListView lv = ((ListView) v.findViewById(R.id.favouritesList));
-        StationArrayAdapter saa = new StationArrayAdapter(getContext(), new ArrayList<Station>());
+        StationArrayAdapter saa = new StationArrayAdapter(getContext(), Utils.getInstance().getFavouriteStations(getContext()));
         lv.setAdapter(saa);
     }
 }

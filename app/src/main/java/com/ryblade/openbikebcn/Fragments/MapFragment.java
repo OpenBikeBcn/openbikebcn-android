@@ -1,10 +1,7 @@
 package com.ryblade.openbikebcn.Fragments;
 
 import android.Manifest;
-import android.animation.ObjectAnimator;
-import android.app.ActionBar;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -13,16 +10,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import com.ryblade.openbikebcn.Model.Station;
@@ -32,9 +26,6 @@ import com.ryblade.openbikebcn.Utils;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.overlays.Marker;
 import org.osmdroid.bonuspack.overlays.Polygon;
-import org.osmdroid.events.MapListener;
-import org.osmdroid.events.ScrollEvent;
-import org.osmdroid.events.ZoomEvent;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 
@@ -52,6 +43,7 @@ public class MapFragment extends Fragment implements LocationListener {
     private MapView mapView;
     private LinearLayout stationInfo;
     private boolean isStationInfoHiden;
+    private Station stationSelected;
 
     private final double MAP_DEFAULT_LATITUDE = 41.38791700;
     private final double MAP_DEFAULT_LONGITUDE = 2.16991870;
@@ -98,6 +90,7 @@ public class MapFragment extends Fragment implements LocationListener {
                 if(!isStationInfoHiden) {
                     stationInfo.animate().translationY(stationInfo.getHeight());
                     isStationInfoHiden = true;
+                    stationSelected = null;
                 }
                 return false;
             }
@@ -190,6 +183,7 @@ public class MapFragment extends Fragment implements LocationListener {
                     ((TextView) stationInfo.findViewById(R.id.stationSlots)).setText(String.valueOf(station.getSlots()));
                     stationInfo.animate().translationY(-stationInfo.getHeight());
                     isStationInfoHiden = false;
+                    stationSelected = station;
                     return false;
                 }
             });
@@ -214,6 +208,10 @@ public class MapFragment extends Fragment implements LocationListener {
         if(center)
             mapController.animateTo(point);
         mapView.invalidate();
+    }
+
+    public Station getStationSelected() {
+        return stationSelected;
     }
 
     @Override

@@ -14,7 +14,9 @@ public class StationsProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private StationsDbHelper mOpenHelper;
+    private FavouritesDbHelper mFavOpenHelper;
     private static final int STATION = 100;
+    private static final int FAVOURITES = 101;
 
 
     private static UriMatcher buildUriMatcher() {
@@ -31,12 +33,16 @@ public class StationsProvider extends ContentProvider {
         matcher.addURI(authority, DBContract.PATH_STATIONS, STATION);
         matcher.addURI(authority, DBContract.PATH_STATIONS+ "/*", STATION);
 
+        matcher.addURI(authority, DBContract.PATH_FAVOURITES, FAVOURITES);
+        matcher.addURI(authority, DBContract.PATH_FAVOURITES+ "/*", FAVOURITES);
+
         return matcher;
     }
 
     @Override
     public boolean onCreate() {
         mOpenHelper = new StationsDbHelper(getContext());
+        mFavOpenHelper = new FavouritesDbHelper(getContext());
         return true;
     }
 
@@ -49,6 +55,17 @@ public class StationsProvider extends ContentProvider {
             case STATION: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         DBContract.StationsEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }case FAVOURITES: {
+                retCursor = mFavOpenHelper.getReadableDatabase().query(
+                        DBContract.FavouritesEntry.TABLE_NAME,
                         projection,
                         selection,
                         selectionArgs,
@@ -73,6 +90,8 @@ public class StationsProvider extends ContentProvider {
         switch (match) {
             case STATION:
                 return DBContract.StationsEntry.CONTENT_TYPE;
+            case FAVOURITES:
+                return DBContract.FavouritesEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -80,15 +99,25 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public Uri insert(Uri uri, ContentValues values) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final SQLiteDatabase db;
         final int match = sUriMatcher.match(uri);
         Uri returnUri;
 
         switch (match) {
             case STATION: {
+                db = mOpenHelper.getWritableDatabase();
                 long _id = db.insert(DBContract.StationsEntry.TABLE_NAME, null, values);
                 if ( _id > 0 )
                     returnUri = DBContract.StationsEntry.buildStationUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case FAVOURITES: {
+                db = mFavOpenHelper.getWritableDatabase();
+                long _id = db.insert(DBContract.FavouritesEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = DBContract.FavouritesEntry.buildStationUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -102,13 +131,19 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final SQLiteDatabase db;
         final int match = sUriMatcher.match(uri);
         int rowsDeleted;
         switch (match) {
             case STATION:
+                db = mOpenHelper.getWritableDatabase();
                 rowsDeleted = db.delete(
                         DBContract.StationsEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case FAVOURITES:
+                db = mFavOpenHelper.getWritableDatabase();
+                rowsDeleted = db.delete(
+                        DBContract.FavouritesEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -123,13 +158,19 @@ public class StationsProvider extends ContentProvider {
     @Override
     public int update(
             Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         final int match = sUriMatcher.match(uri);
+        final SQLiteDatabase db;
         int rowsUpdated;
 
         switch (match) {
             case STATION:
+                db = mOpenHelper.getWritableDatabase();
                 rowsUpdated = db.update(DBContract.StationsEntry.TABLE_NAME, values, selection,
+                        selectionArgs);
+                break;
+            case FAVOURITES:
+                db = mFavOpenHelper.getWritableDatabase();
+                rowsUpdated = db.update(DBContract.FavouritesEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
             default:
@@ -143,15 +184,34 @@ public class StationsProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
-        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final SQLiteDatabase db;
+        int returnCount;
         final int match = sUriMatcher.match(uri);
         switch (match) {
             case STATION:
+                db = mOpenHelper.getWritableDatabase();
                 db.beginTransaction();
-                int returnCount = 0;
+                returnCount = 0;
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(DBContract.StationsEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            case FAVOURITES:
+                db = mFavOpenHelper.getWritableDatabase();
+                db.beginTransaction();
+                returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(DBContract.FavouritesEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }
