@@ -22,7 +22,7 @@ public class StationsDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 
-        final String SQL_CREATE_RANKS_TABLE = "CREATE TABLE " + StationsEntry.TABLE_NAME + " (" +
+        final String SQL_CREATE_STATIONS_TABLE = "CREATE TABLE " + StationsEntry.TABLE_NAME + " (" +
                 StationsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 StationsEntry.COLUMN_ID + " INTEGER NOT NULL, " +
                 StationsEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
@@ -35,12 +35,29 @@ public class StationsDbHelper extends SQLiteOpenHelper {
                 StationsEntry.COLUMN_BIKES + " INTEGER NOT NULL, " +
                 StationsEntry.COLUMN_NEARBYSTATIONS + " TEXT NOT NULL, " +
                 StationsEntry.COLUMN_STATUS+ " TEXT NOT NULL);";
-        sqLiteDatabase.execSQL(SQL_CREATE_RANKS_TABLE);
+
+        final String SQL_CREATE_FAVOURITES_TABLE = "CREATE TABLE " + DBContract.FavouritesEntry.TABLE_NAME + " (" +
+                DBContract.FavouritesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+                DBContract.FavouritesEntry.COLUMN_ID + " INTEGER NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_LATITUDE + " DOUBLE NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_LONGITUDE + " DOUBLE NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_STREETNAME + " TEXT NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_STREETNUMBER + " TEXT NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_ALTITUDE + " DOUBLE NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_SLOTS + " INTEGER NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_BIKES + " INTEGER NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_NEARBYSTATIONS + " TEXT NOT NULL, " +
+                DBContract.FavouritesEntry.COLUMN_STATUS+ " TEXT NOT NULL);";
+
+        sqLiteDatabase.execSQL(SQL_CREATE_STATIONS_TABLE);
+        sqLiteDatabase.execSQL(SQL_CREATE_FAVOURITES_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + StationsEntry.TABLE_NAME);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + DBContract.FavouritesEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 
