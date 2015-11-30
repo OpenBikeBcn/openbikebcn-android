@@ -24,8 +24,12 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
     private final String LOG_TAG = FetchAPITask.class.getSimpleName();
     private final Context mContext;
     private JSONObject parameters;
+    private String method;
 
-    public PostFavouriteAPITask(Context mContext, int idUser, int idStation) {
+    public static String POST = "POST";
+    public static String DELETE = "DELETE";
+
+    public PostFavouriteAPITask(Context mContext, int idUser, int idStation, String method) {
         this.mContext = mContext;
         parameters = new JSONObject();
         try {
@@ -34,6 +38,7 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        this.method = method;
     }
 
     @Override
@@ -49,7 +54,10 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setDoOutput(true);
+            if(method.equals(POST))
+                urlConnection.setDoOutput(true);
+            else
+                urlConnection.setRequestMethod(method);
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.connect();
 
@@ -57,8 +65,6 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
             writer.write(parameters.toString());
             writer.flush();
             writer.close();
-
-            Log.d(LOG_TAG, urlConnection.getResponseCode() + " :(");
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);

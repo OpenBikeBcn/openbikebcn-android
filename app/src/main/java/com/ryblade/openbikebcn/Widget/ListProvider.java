@@ -54,8 +54,7 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public RemoteViews getViewAt(int position) {
-        final RemoteViews remoteView = new RemoteViews(
-                context.getPackageName(), R.layout.widget_row_layout);
+        final RemoteViews remoteView = new RemoteViews(context.getPackageName(), R.layout.widget_row_layout);
         Station station = stations.get(position);
         remoteView.setTextViewText(R.id.stationId, String.valueOf(station.getId()));
         remoteView.setTextViewText(R.id.stationAddress, station.getStreetName() + ", "+ station.getStreetNumber());
@@ -72,7 +71,7 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override

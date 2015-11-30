@@ -116,7 +116,7 @@ public class Utils {
     }
 
     public void addToFavourites(Context context, Station station) {
-        new PostFavouriteAPITask(context, 2, station.getId()).execute();
+        new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.POST).execute();
 
         ContentValues rankValues = new ContentValues();
 
@@ -136,6 +136,8 @@ public class Utils {
     }
 
     public void deleteFavourite(Context context, Station station) {
+        new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.DELETE).execute();
+
         context.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI,
                 DBContract.FavouritesEntry.COLUMN_ID + "=" + station.getId(), null);
     }
