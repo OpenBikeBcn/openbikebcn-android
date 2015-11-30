@@ -116,6 +116,8 @@ public class Utils {
     }
 
     public void addToFavourites(Context context, Station station) {
+        new PostFavouriteAPITask(context, 2, station.getId()).execute();
+
         ContentValues rankValues = new ContentValues();
 
         rankValues.put(DBContract.FavouritesEntry.COLUMN_ID, station.getId());
