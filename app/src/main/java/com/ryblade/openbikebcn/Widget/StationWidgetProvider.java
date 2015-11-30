@@ -6,10 +6,12 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.ryblade.openbikebcn.R;
+import com.ryblade.openbikebcn.Utils;
 
 import java.util.Random;
 
@@ -18,36 +20,38 @@ import java.util.Random;
  */
 public class StationWidgetProvider extends AppWidgetProvider {
 
-    private static final String ACTION_CLICK = "ACTION_CLICK";
-
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager,
                          int[] appWidgetIds) {
 
         // Get all ids
-        ComponentName thisWidget = new ComponentName(context,
-                StationWidgetProvider.class);
-        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
-        for (int widgetId : allWidgetIds) {
-            // create some random data
-            int number = (new Random().nextInt(100));
-
-            RemoteViews remoteViews = new RemoteViews(context.getPackageName(),
-                    R.layout.widget_layout);
-            Log.w("WidgetExample", String.valueOf(number));
-            // Set the text
-            remoteViews.setTextViewText(R.id.update, String.valueOf(number));
-
-            // Register an onClickListener
-            Intent intent = new Intent(context, StationWidgetProvider.class);
-
-            intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, appWidgetIds);
-
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                    0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            remoteViews.setOnClickPendingIntent(R.id.update, pendingIntent);
-            appWidgetManager.updateAppWidget(widgetId, remoteViews);
+//        ComponentName thisWidget = new ComponentName(context,
+//                StationWidgetProvider.class);
+//        int[] allWidgetIds = appWidgetManager.getAppWidgetIds(thisWidget);
+        final int N = appWidgetIds.length;
+        for (int i = 0; i < N; ++i) {
+            RemoteViews remoteViews = updateWidgetListView(context, appWidgetIds[i]);
+            appWidgetManager.updateAppWidget(appWidgetIds[i], remoteViews);
         }
+        super.onUpdate(context, appWidgetManager, appWidgetIds);
+    }
+
+    private RemoteViews updateWidgetListView(Context context, int appWidgetId) {
+
+        //which layout to show on widget
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(),R.layout.widget_layout);
+
+        //RemoteViews Service needed to provide adapter for ListView
+        Intent svcIntent = new Intent(context, WidgetService.class);
+        //passing app widget id to that RemoteViews Service
+        svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        //setting a unique Uri to the intent
+        //don't know its purpose to me right now
+        svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        //setting adapter to listview of the widget
+        remoteViews.setRemoteAdapter(R.id.favouritesWidgetList, svcIntent);
+        //setting an empty view in case of no data
+        remoteViews.setEmptyView(R.id.favouritesWidgetList, R.id.empty_view);
+        return remoteViews;
     }
 }

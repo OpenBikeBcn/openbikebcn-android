@@ -11,4 +11,5 @@
     <string name="addToFavourites">Add to favourites</string>
     <string name="startRoute">Start route</string>
     <string name="endRoute">End route</string>
+    <string name="empty_string">You don\'t have favourite stations</string>
 </resources>

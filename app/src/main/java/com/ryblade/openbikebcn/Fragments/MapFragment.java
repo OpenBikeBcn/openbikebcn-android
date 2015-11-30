@@ -9,6 +9,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,7 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Overlay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     private IMapController mapController;
     private MapView mapView;
     private LinearLayout stationInfo;
+    private FloatingActionButton syncButton;
     private boolean isStationInfoHiden;
 
     private Station currentStation;
@@ -149,92 +152,15 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
         mapController.setZoom(18);
 
         /* location manager */
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        Location location = null;
+        updateLocation();
 
-        if (getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    public void requestPermissions(@NonNull String[] permissions, int requestCode)
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for Activity#requestPermissions for more details.
-            return;
-        }
-
-        for (String provider : locationManager.getProviders(true)) {
-            location = locationManager.getLastKnownLocation(provider);
-            if (location != null)
-            {
-                updateCurrentLocation(new GeoPoint(location), location.getAccuracy(), true);
-                locationManager.requestLocationUpdates(provider, 0, 0, this);
-                break;
-            }
-        }
-
-        //add car position
-        if (location == null)
-        {
-            location = new Location(LocationManager.GPS_PROVIDER);
-            location.setLatitude(MAP_DEFAULT_LATITUDE);
-            location.setLongitude(MAP_DEFAULT_LONGITUDE);
-            updateCurrentLocation(new GeoPoint(location), 0, true);
-        }
-
-        ArrayList<Station> stations = Utils.getInstance().getAllStations(getActivity());
-
-        Drawable darkRed = getResources().getDrawable(R.drawable.darkred_marker);
-        Drawable green = getResources().getDrawable(R.drawable.green_marker);
-        Drawable black = getResources().getDrawable(R.drawable.black_marker);
-        Drawable red = getResources().getDrawable(R.drawable.red_marker);
-        Drawable blue = getResources().getDrawable(R.drawable.blue_marker);
-
-        for (Station sta : stations) {
-            Drawable icon;
-            if (sta.getBikes() == 0)
-                icon = darkRed;
-            else if (sta.getBikes() < 4)
-                icon = red;
-            else if (sta.getSlots() == 0)
-                icon = black;
-            else if (sta.getSlots() < 4)
-                icon = blue;
-            else
-                icon = green;
-            Marker stationMarker = new Marker(mapView);
-            stationMarker.setPosition(new GeoPoint(sta.getLatitude(), sta.getLongitude()));
-            stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            stationMarker.setIcon(icon);
-            stationMarker.setTitle(String.valueOf(sta.getId()));
-            stationMarker.setSnippet(String.valueOf(sta.getBikes()));
-            stationMarker.setRelatedObject(sta);
-            stationMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(Marker marker, MapView mapView) {
-                    mapController.animateTo(marker.getPosition());
-                    Station station = ((Station) marker.getRelatedObject());
-                    ((TextView) stationInfo.findViewById(R.id.stationId)).setText(String.valueOf(station.getId()));
-                    ((TextView) stationInfo.findViewById(R.id.stationAddress)).setText(String.format("%s, %s",
-                            station.getStreetName(), String.valueOf(station.getStreetNumber())));
-                    ((TextView) stationInfo.findViewById(R.id.stationBikes)).setText(String.valueOf(station.getBikes()));
-                    ((TextView) stationInfo.findViewById(R.id.stationSlots)).setText(String.valueOf(station.getSlots()));
-                    stationInfo.animate().translationY(-stationInfo.getHeight());
-                    isStationInfoHiden = false;
-                    currentStation = station;
-                    return false;
-                }
-            });
-            mapView.getOverlays().add(stationMarker);
-        }
-
-        mapView.invalidate();
+        updateStations();
     }
 
     public void initStationInfo(View rootView) {
         stationInfo = ((LinearLayout) rootView.findViewById(R.id.stationInfo));
         stationInfo.setBackgroundColor(Color.LTGRAY);
+        syncButton = ((FloatingActionButton) rootView.findViewById(R.id.sync));
     }
 
     public void updateCurrentLocation(GeoPoint point, float accuracy, boolean center) {
@@ -285,10 +211,102 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
 
     private void dismissMapShownInfo() {
         if(!isStationInfoHiden) {
+            syncButton.animate().translationY(30);
             stationInfo.animate().translationY(stationInfo.getHeight());
             isStationInfoHiden = true;
             currentStation = null;
         }
+    }
+
+    public void updateStations() {
+        ArrayList<Station> stations = Utils.getInstance().getAllStations(getActivity());
+
+        Drawable darkRed = getResources().getDrawable(R.drawable.darkred_marker);
+        Drawable green = getResources().getDrawable(R.drawable.green_marker);
+        Drawable black = getResources().getDrawable(R.drawable.black_marker);
+        Drawable red = getResources().getDrawable(R.drawable.red_marker);
+        Drawable blue = getResources().getDrawable(R.drawable.blue_marker);
+
+        for (Station sta : stations) {
+            Drawable icon;
+            if (sta.getBikes() == 0)
+                icon = darkRed;
+            else if (sta.getBikes() < 4)
+                icon = red;
+            else if (sta.getSlots() == 0)
+                icon = black;
+            else if (sta.getSlots() < 4)
+                icon = blue;
+            else
+                icon = green;
+            Marker stationMarker = new Marker(mapView);
+            stationMarker.setPosition(new GeoPoint(sta.getLatitude(), sta.getLongitude()));
+            stationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+            stationMarker.setIcon(icon);
+            stationMarker.setTitle(String.valueOf(sta.getId()));
+            stationMarker.setSnippet(String.valueOf(sta.getBikes()));
+            stationMarker.setRelatedObject(sta);
+            stationMarker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    mapController.animateTo(marker.getPosition());
+                    Station station = ((Station) marker.getRelatedObject());
+                    ((TextView) stationInfo.findViewById(R.id.stationId)).setText(String.valueOf(station.getId()));
+                    ((TextView) stationInfo.findViewById(R.id.stationAddress)).setText(String.format("%s, %s",
+                            station.getStreetName(), String.valueOf(station.getStreetNumber())));
+                    ((TextView) stationInfo.findViewById(R.id.stationBikes)).setText(String.valueOf(station.getBikes()));
+                    ((TextView) stationInfo.findViewById(R.id.stationSlots)).setText(String.valueOf(station.getSlots()));
+                    stationInfo.animate().translationY(-stationInfo.getHeight());
+                    syncButton.animate().translationY(-stationInfo.getHeight());
+                    isStationInfoHiden = false;
+                    currentStation = station;
+                    return false;
+                }
+            });
+            mapView.getOverlays().add(stationMarker);
+        }
+
+        mapView.invalidate();
+    }
+
+    public void updateLocation() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        Location location = null;
+
+        if (getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && getActivity().checkCallingOrSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    public void requestPermissions(@NonNull String[] permissions, int requestCode)
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for Activity#requestPermissions for more details.
+            return;
+        }
+
+        for (String provider : locationManager.getProviders(true)) {
+            location = locationManager.getLastKnownLocation(provider);
+            if (location != null)
+            {
+                updateCurrentLocation(new GeoPoint(location), location.getAccuracy(), true);
+                locationManager.requestLocationUpdates(provider, 0, 0, this);
+                break;
+            }
+        }
+
+        //add car position
+        if (location == null)
+        {
+            location = new Location(LocationManager.GPS_PROVIDER);
+            location.setLatitude(MAP_DEFAULT_LATITUDE);
+            location.setLongitude(MAP_DEFAULT_LONGITUDE);
+            updateCurrentLocation(new GeoPoint(location), 0, true);
+        }
+    }
+
+    public void deleteAllMarkers() {
+        mapView.getOverlays().clear();
     }
 
     public void goToLocation(View v) {

@@ -3,18 +3,23 @@
     android:id="@+id/layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="8dip"
-    android:background="@drawable/widget_background" >
+    android:background="@android:color/white"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/update"
-        style="@android:style/TextAppearance.Medium"
+    <ListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center_horizontal|center_vertical"
-        android:layout_margin="4dip"
-        android:text="Static Text" >
-    </TextView>
+        android:id="@+id/favouritesWidgetList">
+    </ListView>
+
+    <TextView
+        android:id="@+id/empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="@string/empty_string"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:visibility="gone"/>
 
 </LinearLayout> 

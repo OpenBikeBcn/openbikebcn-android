@@ -202,4 +202,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void addToFavourites(Station station) {
         Utils.getInstance().addToFavourites(this, station);
     }
+
+    public void updateStations(View view) {
+        if(currentFragment instanceof MapFragment) {
+            updateBikesDatabase();
+            ((MapFragment) currentFragment).deleteAllMarkers();
+            ((MapFragment) currentFragment).updateStations();
+            ((MapFragment) currentFragment).updateLocation();
+        }
+    }
 }
