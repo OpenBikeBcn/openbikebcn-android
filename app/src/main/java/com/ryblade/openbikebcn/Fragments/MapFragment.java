@@ -358,6 +358,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
             Road road = roadManager.getRoad(waypoints);
 
             Polyline roadOverlay = RoadManager.buildRoadOverlay(road, getActivity());
+            roadOverlay.setWidth(10);
 
             mapView.getOverlays().add(roadOverlay);
 
