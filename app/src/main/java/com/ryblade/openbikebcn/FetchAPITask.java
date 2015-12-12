@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.ryblade.openbikebcn.data.DBContract;
 import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
 
 import org.json.JSONArray;
@@ -28,8 +29,14 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
     private final String LOG_TAG = FetchAPITask.class.getSimpleName();
     private final Context mContext;
 
-    public FetchAPITask(Context context) {
+    public String API_URL;
+
+    public static String BICING_API_URL = "http://wservice.viabicing.cat/v2/stations";
+    public static String FAVOURITES_API_URL = "http://openbike.byte.cat/app_dev.php/api/stations";
+
+    public FetchAPITask(Context context, String url) {
         mContext = context;
+        API_URL = url;
     }
 
 
@@ -109,11 +116,18 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
             cVVector.add(rankValues);
 
         }
-        if (cVVector.size() > 0) {
+        if (cVVector.size() > 0 && API_URL.equals(BICING_API_URL)) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
             mContext.getContentResolver().delete(StationsEntry.CONTENT_URI, null, null);
             mContext.getContentResolver().bulkInsert(StationsEntry.CONTENT_URI, cvArray);
+
+        }
+        else if (cVVector.size() > 0 && API_URL.equals(FAVOURITES_API_URL)) {
+            ContentValues[] cvArray = new ContentValues[cVVector.size()];
+            cVVector.toArray(cvArray);
+            mContext.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI, null, null);
+            mContext.getContentResolver().bulkInsert(DBContract.FavouritesEntry.CONTENT_URI, cvArray);
 
         }
     }
@@ -132,9 +146,7 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
 
 
         try {
-            final String BICING_API_URL = "http://wservice.viabicing.cat/v2/stations";
-
-            URL url = new URL(BICING_API_URL);
+            URL url = new URL(API_URL);
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();

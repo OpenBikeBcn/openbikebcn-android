@@ -71,6 +71,7 @@ public class Utils {
     }
 
     public ArrayList<Station> getFavouriteStations(Context context) {
+        new FetchAPITask(context, FetchAPITask.FAVOURITES_API_URL).execute();
         ArrayList<Station> stations = new ArrayList<>();
 
         Cursor allItems = context.getContentResolver().query(DBContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
@@ -81,17 +82,17 @@ public class Utils {
 
                 station = new Station();
 
-                int id = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_ID));
-                String type = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_TYPE));
-                Double latitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_LATITUDE));
-                Double longitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_LONGITUDE));
-                String streetName = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STREETNAME));
-                String streetNum = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STREETNUMBER));
-                Double altitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_ALTITUDE));
-                int slots = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_SLOTS));
-                int bikes = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_BIKES));
-                String nearbyStations = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_NEARBYSTATIONS));
-                String status = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STATUS));
+                int id = allItems.getInt(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_ID));
+                String type = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_TYPE));
+                Double latitude = allItems.getDouble(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_LATITUDE));
+                Double longitude = allItems.getDouble(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_LONGITUDE));
+                String streetName = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_STREETNAME));
+                String streetNum = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_STREETNUMBER));
+                Double altitude = allItems.getDouble(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_ALTITUDE));
+                int slots = allItems.getInt(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_SLOTS));
+                int bikes = allItems.getInt(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_BIKES));
+                String nearbyStations = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_NEARBYSTATIONS));
+                String status = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_STATUS));
 
 
                 station.setId(id);
@@ -118,27 +119,27 @@ public class Utils {
     public void addToFavourites(Context context, Station station) {
         new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.POST).execute();
 
-        ContentValues rankValues = new ContentValues();
-
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_ID, station.getId());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_TYPE, station.getType());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_LATITUDE, station.getLatitude());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_LONGITUDE, station.getLongitude());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_STREETNAME, station.getStreetName());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_STREETNUMBER, station.getStreetNumber());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_ALTITUDE, station.getAltitude());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_SLOTS, station.getSlots());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_BIKES, station.getBikes());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_NEARBYSTATIONS, station.getNearbyStations());
-        rankValues.put(DBContract.FavouritesEntry.COLUMN_STATUS, station.getStatus());
-
-        context.getContentResolver().insert(DBContract.FavouritesEntry.CONTENT_URI,rankValues);
+//        ContentValues rankValues = new ContentValues();
+//
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_ID, station.getId());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_TYPE, station.getType());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_LATITUDE, station.getLatitude());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_LONGITUDE, station.getLongitude());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_STREETNAME, station.getStreetName());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_STREETNUMBER, station.getStreetNumber());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_ALTITUDE, station.getAltitude());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_SLOTS, station.getSlots());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_BIKES, station.getBikes());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_NEARBYSTATIONS, station.getNearbyStations());
+//        rankValues.put(DBContract.FavouritesEntry.COLUMN_STATUS, station.getStatus());
+//
+//        context.getContentResolver().insert(DBContract.FavouritesEntry.CONTENT_URI,rankValues);
     }
 
     public void deleteFavourite(Context context, Station station) {
         new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.DELETE).execute();
 
-        context.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI,
-                DBContract.FavouritesEntry.COLUMN_ID + "=" + station.getId(), null);
+//        context.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI,
+//                DBContract.FavouritesEntry.COLUMN_ID + "=" + station.getId(), null);
     }
 }

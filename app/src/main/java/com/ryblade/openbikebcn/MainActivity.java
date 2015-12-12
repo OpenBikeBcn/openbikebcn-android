@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void updateBikesDatabase() {
-        new FetchAPITask(this).execute();
+        new FetchAPITask(this, FetchAPITask.BICING_API_URL).execute();
     }
 
     @Override
