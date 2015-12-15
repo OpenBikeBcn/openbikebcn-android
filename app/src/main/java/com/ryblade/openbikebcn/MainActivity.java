@@ -32,6 +32,7 @@ import com.ryblade.openbikebcn.Wearable.NotificationIntentReceiver;
 import com.ryblade.openbikebcn.Wearable.NotificationPreset;
 import com.ryblade.openbikebcn.Wearable.PriorityPreset;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         scheduleAlarm();
-        updateNotifications(false);
+        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
 
     }
 
@@ -259,7 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alarm.cancel(pIntent);
     }
 
-    private void updateNotifications(boolean cancelExisting) {
+    private void updateNotifications(boolean cancelExisting, ArrayList<Station> stations) {
         // Disable messages to skip notification deleted messages during cancel.
         sendBroadcast(new Intent(NotificationIntentReceiver.ACTION_DISABLE_MESSAGES)
                 .setClass(this, NotificationIntentReceiver.class));
@@ -275,20 +276,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mHandler.removeMessages(MSG_POST_NOTIFICATIONS);
             mHandler.sendEmptyMessageDelayed(MSG_POST_NOTIFICATIONS, POST_NOTIFICATIONS_DELAY_MS);
         } else {
-            postNotifications();
+            postNotifications(stations);
         }
     }
 
     /**
      * Post the sample notification(s) using current options.
      */
-    private void postNotifications() {
+    private void postNotifications(ArrayList<Station> stations) {
         sendBroadcast(new Intent(NotificationIntentReceiver.ACTION_ENABLE_MESSAGES)
                 .setClass(this, NotificationIntentReceiver.class));
 
-        NotificationPreset preset = new NotificationPreset(R.string.app_name,R.string.app_name,R.string.app_name);
-        CharSequence titlePreset = "Títol";
-        CharSequence textPreset = "Text";
+        NotificationPreset preset = new NotificationPreset(0,0,0,stations);
+        CharSequence titlePreset = "OpenBikeBcn";
+        CharSequence textPreset = "";
         PriorityPreset priorityPreset = new PriorityPreset(R.string.addToFavourites);
         ActionsPreset actionsPreset = new ActionsPreset(R.string.app_name);
         NotificationPreset.BuildOptions options = new NotificationPreset.BuildOptions(
@@ -317,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case MSG_POST_NOTIFICATIONS:
-                postNotifications();
+//                postNotifications();
                 return true;
         }
         return false;

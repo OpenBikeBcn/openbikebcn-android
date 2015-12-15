@@ -20,8 +20,12 @@ import android.app.Notification;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
+import android.widget.ArrayAdapter;
 
+import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.R;
+
+import java.util.ArrayList;
 
 /**
  * Base class for notification preset generators.
@@ -29,11 +33,13 @@ import com.ryblade.openbikebcn.R;
 public class NotificationPreset extends NamedPreset {
     public final int titleResId;
     public final int textResId;
+    private ArrayList<Station> stations;
 
-    public NotificationPreset(int nameResId, int titleResId, int textResId) {
+    public NotificationPreset(int nameResId, int titleResId, int textResId, ArrayList<Station> stations) {
         super(nameResId);
         this.titleResId = titleResId;
         this.textResId = textResId;
+        this.stations = stations;
     }
 
     public static class BuildOptions {
@@ -64,11 +70,16 @@ public class NotificationPreset extends NamedPreset {
     /** Build a notification with this preset and the provided options */
     public Notification[] buildNotifications(Context context, BuildOptions options){
         NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
-        style.addLine(context.getString(R.string.app_name));
-        style.addLine(context.getString(R.string.bikesTag));
-        style.addLine(context.getString(R.string.slotsTag));
-        style.setBigContentTitle(context.getString(R.string.addToFavourites));
-        style.setSummaryText(context.getString(R.string.app_name));
+        for(int i = 0; i < stations.size(); ++i) {
+            Station station = stations.get(i);
+            style.addLine(station.getStreetName() + ", " + station.getStreetNumber());
+            style.addLine("Bikes: " + station.getBikes());
+            style.addLine("Slots: " + station.getSlots());
+            if(i < stations.size()-1)
+                style.addLine("-----------------");
+        }
+        style.setBigContentTitle(context.getString(R.string.app_name));
+        // style.setSummaryText(context.getString(R.string.app_name));
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
                 .setStyle(style);
