@@ -3,11 +3,15 @@ package com.ryblade.openbikebcn;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.app.Notification;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -23,14 +27,27 @@ import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Fragments.MapFragment;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.Service.MyAlarmReceiver;
+import com.ryblade.openbikebcn.Wearable.ActionsPreset;
+import com.ryblade.openbikebcn.Wearable.NotificationIntentReceiver;
+import com.ryblade.openbikebcn.Wearable.NotificationPreset;
+import com.ryblade.openbikebcn.Wearable.PriorityPreset;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import java.util.Arrays;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
+
+    private static final int MSG_POST_NOTIFICATIONS = 0;
+    private static final long POST_NOTIFICATIONS_DELAY_MS = 200;
 
     private Fragment currentFragment;
+    private int postedNotificationCount = 0;
+    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mHandler = new Handler(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -59,6 +76,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         scheduleAlarm();
+        updateNotifications(false);
+
     }
 
     private void updateBikesDatabase() {
@@ -240,4 +259,67 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alarm.cancel(pIntent);
     }
 
+    private void updateNotifications(boolean cancelExisting) {
+        // Disable messages to skip notification deleted messages during cancel.
+        sendBroadcast(new Intent(NotificationIntentReceiver.ACTION_DISABLE_MESSAGES)
+                .setClass(this, NotificationIntentReceiver.class));
+
+        if (cancelExisting) {
+            // Cancel all existing notifications to trigger fresh-posting behavior: For example,
+            // switching from HIGH to LOW priority does not cause a reordering in Notification Shade.
+            NotificationManagerCompat.from(this).cancelAll();
+            postedNotificationCount = 0;
+
+            // Post the updated notifications on a delay to avoid a cancel+post race condition
+            // with notification manager.
+            mHandler.removeMessages(MSG_POST_NOTIFICATIONS);
+            mHandler.sendEmptyMessageDelayed(MSG_POST_NOTIFICATIONS, POST_NOTIFICATIONS_DELAY_MS);
+        } else {
+            postNotifications();
+        }
+    }
+
+    /**
+     * Post the sample notification(s) using current options.
+     */
+    private void postNotifications() {
+        sendBroadcast(new Intent(NotificationIntentReceiver.ACTION_ENABLE_MESSAGES)
+                .setClass(this, NotificationIntentReceiver.class));
+
+        NotificationPreset preset = new NotificationPreset(R.string.app_name,R.string.app_name,R.string.app_name);
+        CharSequence titlePreset = "Títol";
+        CharSequence textPreset = "Text";
+        PriorityPreset priorityPreset = new PriorityPreset(R.string.addToFavourites);
+        ActionsPreset actionsPreset = new ActionsPreset(R.string.app_name);
+        NotificationPreset.BuildOptions options = new NotificationPreset.BuildOptions(
+                titlePreset,
+                textPreset,
+                priorityPreset,
+                actionsPreset,
+                false,
+                false,
+                true,
+                true);
+        Notification[] notifications = preset.buildNotifications(this, options);
+
+        // Post new notifications
+        for (int i = 0; i < notifications.length; i++) {
+            NotificationManagerCompat.from(this).notify(i, notifications[i]);
+        }
+        // Cancel any that are beyond the current count.
+        for (int i = notifications.length; i < postedNotificationCount; i++) {
+            NotificationManagerCompat.from(this).cancel(i);
+        }
+        postedNotificationCount = notifications.length;
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+        switch (msg.what) {
+            case MSG_POST_NOTIFICATIONS:
+                postNotifications();
+                return true;
+        }
+        return false;
+    }
 }
