@@ -2,14 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ryblade.openbikebcn" >
 
-
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -27,14 +28,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <provider
-            android:authorities="com.ryblade.openbikebcn"
-            android:name=".data.StationsProvider" />
+            android:name=".data.StationsProvider"
+            android:authorities="com.ryblade.openbikebcn" />
 
         <receiver
+            android:name=".Widget.StationWidgetProvider"
             android:icon="@mipmap/ic_launcher"
-            android:label="Example Widget"
-            android:name=".Widget.StationWidgetProvider">
+            android:label="Example Widget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -47,7 +49,23 @@
         <service
             android:name=".Widget.WidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
+        <service
+            android:name=".Service.UpdateIntentService"
+            android:exported="false" >
+        </service>
 
+        <receiver
+            android:name=".Service.MyAlarmReceiver"
+            android:process=":remote"
+            android:enabled="true"
+            android:exported="true" >
+        </receiver>
+
+        <receiver android:name=".Service.BootBroadcastReceiver">
+        <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+        </intent-filter>
+    </receiver>
     </application>
 
 </manifest>

@@ -56,7 +56,7 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
 //                "nearbyStations": "24, 369, 387, 426",
 //                "status": "OPN"
 
-
+        Log.v(LOG_TAG, "Fetching!!!");
         final String ID_STATION = "id";
         final String TYPE_STATION = "type";
         final String LATITUDE_STATION = "latitude";
