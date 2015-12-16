@@ -75,9 +75,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
         }
 
-
-        scheduleAlarm();
-        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
+        updateBikesDatabase();
+//        scheduleAlarm();
+//        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
 
     }
 

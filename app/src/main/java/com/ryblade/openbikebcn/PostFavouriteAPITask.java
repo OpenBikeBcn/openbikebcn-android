@@ -54,10 +54,9 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
-            if(method.equals(POST))
-                urlConnection.setDoOutput(true);
-            else
-                urlConnection.setRequestMethod(method);
+            urlConnection.setDoOutput(true);
+            if(method.equals(DELETE))
+                urlConnection.setRequestMethod(DELETE);
             urlConnection.setRequestProperty("Content-Type", "application/json");
             urlConnection.connect();
 
@@ -65,6 +64,8 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
             writer.write(parameters.toString());
             writer.flush();
             writer.close();
+
+            Log.d("openbikebcn", String.valueOf(urlConnection.getResponseCode()));
 
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -74,6 +75,7 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
+                Log.d("openbikebcn",method);
             }
         }
         return null;

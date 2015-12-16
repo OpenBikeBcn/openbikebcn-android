@@ -3,8 +3,10 @@ package com.ryblade.openbikebcn;
 import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Message;
 import android.util.Log;
 
+import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.data.DBContract;
 import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
 
@@ -30,13 +32,19 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
     private final Context mContext;
 
     public String API_URL;
+    public String action;
 
     public static String BICING_API_URL = "http://wservice.viabicing.cat/v2/stations";
     public static String FAVOURITES_API_URL = "http://openbike.byte.cat/app_dev.php/api/stations";
 
+    public static String INSERT = "insert";
+    public static String UPDATE = "update";
+
     public FetchAPITask(Context context, String url) {
         mContext = context;
         API_URL = url;
+        if(url.equals(BICING_API_URL))
+            this.action = Utils.getInstance().getAllStations(context).size() > 0 ? UPDATE : INSERT;
     }
 
 
@@ -72,56 +80,83 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
         JSONObject stationsObject = new JSONObject(stationsJSONString);
 
         JSONArray stationsJSONArray = stationsObject.getJSONArray("stations");
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(stationsJSONArray.length());
+        if(action.equals(INSERT)) {
+            Vector<ContentValues> cVVector = new Vector<ContentValues>(stationsJSONArray.length());
 
-        for(int i = 0; i < stationsJSONArray.length(); i++) {
-            // These are the values that will be collected.
+            for (int i = 0; i < stationsJSONArray.length(); i++) {
+                // These are the values that will be collected.
 
-            String idString, type, latitudeString, longitudeString, streetName, streetNumber, altitudeString, slotsString, bikesString, nearbyStations, status;
+                String idString, type, latitudeString, longitudeString, streetName, streetNumber, altitudeString, slotsString, bikesString, nearbyStations, status;
 
-            // Get the JSON object representing the player
-            JSONObject stationObject = stationsJSONArray.getJSONObject(i);
+                // Get the JSON object representing the player
+                JSONObject stationObject = stationsJSONArray.getJSONObject(i);
 
-            idString = stationObject.getString(ID_STATION);
-            int id = Integer.parseInt(idString);
-            type = stationObject.getString(TYPE_STATION);
-            latitudeString = stationObject.getString(LATITUDE_STATION);
-            double latitude = Double.parseDouble(latitudeString);
-            longitudeString = stationObject.getString(LONGITUDE_STATION);
-            double longitude = Double.parseDouble(longitudeString);
-            streetName = stationObject.getString(STREETNAME_STATION);
-            streetNumber = stationObject.getString(STREETNUMBER_STATION);
-            altitudeString = stationObject.getString(ALTITUDE_STATION);
-            int altitude = Integer.parseInt(altitudeString);
-            slotsString = stationObject.getString(SLOTS_STATION);
-            int slots = Integer.parseInt(slotsString);
-            bikesString = stationObject.getString(BIKES_STATION);
-            int bikes = Integer.parseInt(bikesString);
-            nearbyStations = stationObject.getString(NEARBY_STATIONS);
-            status = stationObject.getString(STATUS_STATION);
+                idString = stationObject.getString(ID_STATION);
+                int id = Integer.parseInt(idString);
+                type = stationObject.getString(TYPE_STATION);
+                latitudeString = stationObject.getString(LATITUDE_STATION);
+                double latitude = Double.parseDouble(latitudeString);
+                longitudeString = stationObject.getString(LONGITUDE_STATION);
+                double longitude = Double.parseDouble(longitudeString);
+                streetName = stationObject.getString(STREETNAME_STATION);
+                streetNumber = stationObject.getString(STREETNUMBER_STATION);
+                altitudeString = stationObject.getString(ALTITUDE_STATION);
+                int altitude = Integer.parseInt(altitudeString);
+                slotsString = stationObject.getString(SLOTS_STATION);
+                int slots = Integer.parseInt(slotsString);
+                bikesString = stationObject.getString(BIKES_STATION);
+                int bikes = Integer.parseInt(bikesString);
+                nearbyStations = stationObject.getString(NEARBY_STATIONS);
+                status = stationObject.getString(STATUS_STATION);
 
-            ContentValues rankValues = new ContentValues();
-            rankValues.put(StationsEntry.COLUMN_ID, id);
-            rankValues.put(StationsEntry.COLUMN_TYPE, type);
-            rankValues.put(StationsEntry.COLUMN_LATITUDE, latitude);
-            rankValues.put(StationsEntry.COLUMN_LONGITUDE, longitude);
-            rankValues.put(StationsEntry.COLUMN_STREETNAME, streetName);
-            rankValues.put(StationsEntry.COLUMN_STREETNUMBER, streetNumber);
-            rankValues.put(StationsEntry.COLUMN_ALTITUDE, altitude);
-            rankValues.put(StationsEntry.COLUMN_SLOTS, slots);
-            rankValues.put(StationsEntry.COLUMN_BIKES, bikes);
-            rankValues.put(StationsEntry.COLUMN_NEARBYSTATIONS, nearbyStations);
-            rankValues.put(StationsEntry.COLUMN_STATUS, status);
+                ContentValues rankValues = new ContentValues();
+                rankValues.put(StationsEntry.COLUMN_ID, id);
+                rankValues.put(StationsEntry.COLUMN_TYPE, type);
+                rankValues.put(StationsEntry.COLUMN_LATITUDE, latitude);
+                rankValues.put(StationsEntry.COLUMN_LONGITUDE, longitude);
+                rankValues.put(StationsEntry.COLUMN_STREETNAME, streetName);
+                rankValues.put(StationsEntry.COLUMN_STREETNUMBER, streetNumber);
+                rankValues.put(StationsEntry.COLUMN_ALTITUDE, altitude);
+                rankValues.put(StationsEntry.COLUMN_SLOTS, slots);
+                rankValues.put(StationsEntry.COLUMN_BIKES, bikes);
+                rankValues.put(StationsEntry.COLUMN_NEARBYSTATIONS, nearbyStations);
+                rankValues.put(StationsEntry.COLUMN_STATUS, status);
+                rankValues.put(StationsEntry.COLUMN_FAVORITE, 0);
 
-            cVVector.add(rankValues);
+                cVVector.add(rankValues);
 
+            }
+            if (cVVector.size() > 0) {
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                mContext.getContentResolver().delete(StationsEntry.CONTENT_URI, null, null);
+                mContext.getContentResolver().bulkInsert(StationsEntry.CONTENT_URI, cvArray);
+
+            }
         }
-        if (cVVector.size() > 0) {
-            ContentValues[] cvArray = new ContentValues[cVVector.size()];
-            cVVector.toArray(cvArray);
-            mContext.getContentResolver().delete(StationsEntry.CONTENT_URI, null, null);
-            mContext.getContentResolver().bulkInsert(StationsEntry.CONTENT_URI, cvArray);
+        else if(action.equals(UPDATE)) {
+            for (int i = 0; i < stationsJSONArray.length(); i++) {
+                // These are the values that will be collected.
 
+                String idString, slotsString, bikesString;
+
+                // Get the JSON object representing the player
+                JSONObject stationObject = stationsJSONArray.getJSONObject(i);
+
+                idString = stationObject.getString(ID_STATION);
+                int id = Integer.parseInt(idString);
+                slotsString = stationObject.getString(SLOTS_STATION);
+                int slots = Integer.parseInt(slotsString);
+                bikesString = stationObject.getString(BIKES_STATION);
+                int bikes = Integer.parseInt(bikesString);
+
+                ContentValues rankValues = new ContentValues();
+                rankValues.put(StationsEntry.COLUMN_SLOTS, slots);
+                rankValues.put(StationsEntry.COLUMN_BIKES, bikes);
+
+                int j = mContext.getContentResolver().update(StationsEntry.CONTENT_URI, rankValues,
+                        StationsEntry.COLUMN_ID + " = ?", new String[]{idString});
+            }
         }
     }
 
@@ -144,7 +179,8 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
         JSONObject stationsObject = new JSONObject(stationsJSONString);
 
         JSONArray stationsJSONArray = stationsObject.getJSONArray("stations");
-        Vector<ContentValues> cVVector = new Vector<ContentValues>(stationsJSONArray.length());
+        String[] idsArray = new String[stationsJSONArray.length()];
+        String where = " IN(";
 
         for(int i = 0; i < stationsJSONArray.length(); i++) {
             // These are the values that will be collected.
@@ -155,28 +191,23 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
             JSONObject stationObject = stationsJSONArray.getJSONObject(i);
 
             idString = stationObject.getString(ID_STATION);
-            int id = Integer.parseInt(idString);
             latitudeString = stationObject.getString(LATITUDE_STATION);
             double latitude = Double.parseDouble(latitudeString);
             longitudeString = stationObject.getString(LONGITUDE_STATION);
             double longitude = Double.parseDouble(longitudeString);
             name = stationObject.getString(NAME_STATION);
 
-            ContentValues rankValues = new ContentValues();
-            rankValues.put(DBContract.FavouritesEntry.COLUMN_ID, id);
-            rankValues.put(DBContract.FavouritesEntry.COLUMN_LATITUDE, latitude);
-            rankValues.put(DBContract.FavouritesEntry.COLUMN_LONGITUDE, longitude);
-            rankValues.put(DBContract.FavouritesEntry.COLUMN_NAME, name);
-
-            cVVector.add(rankValues);
-
+            idsArray[0] = idString;
+            where += "?";
+            if(i < stationsJSONArray.length()-1)
+                where += ",";
         }
-        if (cVVector.size() > 0) {
-            ContentValues[] cvArray = new ContentValues[cVVector.size()];
-            cVVector.toArray(cvArray);
-            mContext.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI, null, null);
-            mContext.getContentResolver().bulkInsert(DBContract.FavouritesEntry.CONTENT_URI, cvArray);
-
+        if (idsArray.length > 0) {
+            where += ")";
+            ContentValues rankValues = new ContentValues();
+            rankValues.put(StationsEntry.COLUMN_FAVORITE, 1);
+            mContext.getContentResolver().update(StationsEntry.CONTENT_URI, rankValues,
+                    StationsEntry.COLUMN_ID + where, idsArray);
         }
     }
 

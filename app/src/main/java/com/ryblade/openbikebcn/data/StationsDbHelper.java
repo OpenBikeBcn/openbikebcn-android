@@ -34,23 +34,15 @@ public class StationsDbHelper extends SQLiteOpenHelper {
                 StationsEntry.COLUMN_SLOTS + " INTEGER NOT NULL, " +
                 StationsEntry.COLUMN_BIKES + " INTEGER NOT NULL, " +
                 StationsEntry.COLUMN_NEARBYSTATIONS + " TEXT NOT NULL, " +
-                StationsEntry.COLUMN_STATUS+ " TEXT NOT NULL);";
-
-        final String SQL_CREATE_FAVOURITES_TABLE = "CREATE TABLE " + DBContract.FavouritesEntry.TABLE_NAME + " (" +
-                DBContract.FavouritesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                DBContract.FavouritesEntry.COLUMN_ID + " INTEGER NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_LATITUDE + " DOUBLE NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_LONGITUDE + " DOUBLE NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_NAME + " TEXT NOT NULL);";
+                StationsEntry.COLUMN_STATUS+ " TEXT NOT NULL," +
+                StationsEntry.COLUMN_FAVORITE+ " INTEGER NOT NULL);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_STATIONS_TABLE);
-        sqLiteDatabase.execSQL(SQL_CREATE_FAVOURITES_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + StationsEntry.TABLE_NAME);
-        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + DBContract.FavouritesEntry.TABLE_NAME);
         onCreate(sqLiteDatabase);
     }
 

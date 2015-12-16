@@ -5,7 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
+import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.data.DBContract;
 import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
@@ -70,11 +72,15 @@ public class Utils {
         return stations;
     }
 
-    public ArrayList<Station> getFavouriteStations(Context context) {
+    public void updateFavouriteStations(final Context context, final FavoritesFragment fragment) {
         new FetchAPITask(context, FetchAPITask.FAVOURITES_API_URL).execute();
+    }
+
+    public ArrayList<Station> getFavouriteStations(Context context) {
         ArrayList<Station> stations = new ArrayList<>();
 
-        Cursor allItems = context.getContentResolver().query(DBContract.JoinEntry.CONTENT_URI, null, null, null, null);
+        Cursor allItems = context.getContentResolver().query(StationsEntry.CONTENT_URI, null,
+                StationsEntry.COLUMN_FAVORITE + " = 1", null, null);
 
         Station station;
         if (allItems != null) {
@@ -112,7 +118,6 @@ public class Utils {
             }
             allItems.close();
         }
-
         return stations;
     }
 
@@ -138,13 +143,16 @@ public class Utils {
 
     public void deleteFavourite(Context context, Station station) {
         new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.DELETE).execute();
-
-//        context.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI,
-//                DBContract.FavouritesEntry.COLUMN_ID + "=" + station.getId(), null);
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(StationsEntry.COLUMN_FAVORITE, 0);
+        context.getContentResolver().update(StationsEntry.CONTENT_URI, contentValues,
+                StationsEntry.COLUMN_ID + " = ?", new String[] {String.valueOf(station.getId())});
     }
 
     public ArrayList<Station> getNotificationStations(Context context) {
-        Cursor allItems = context.getContentResolver().query(DBContract.JoinConditionEntry.CONTENT_URI,null,null,null,null,null);
+        Cursor allItems = context.getContentResolver().query(StationsEntry.CONTENT_URI, null,
+                StationsEntry.COLUMN_FAVORITE + " = ? AND " + StationsEntry.COLUMN_BIKES + " < ?"  +
+                        " = ? AND " + StationsEntry.COLUMN_SLOTS + " < ?", new String[] {"1","5","5"}, null);
         ArrayList<Station> stations = new ArrayList<>();
         Station station;
         if (allItems != null) {

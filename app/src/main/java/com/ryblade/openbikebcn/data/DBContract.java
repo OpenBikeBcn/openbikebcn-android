@@ -15,12 +15,6 @@ public class DBContract  {
 
     public static final String PATH_STATIONS = "stations";
 
-    public static final String PATH_FAVOURITES = "favourites";
-
-    public static final String PATH_JOIN = "join";
-
-    public static final String PATH_JOIN_CONDITION = "join_condition";
-
 
     /* Inner class that defines the table contents of the location table */
     public static final class StationsEntry implements BaseColumns {
@@ -50,51 +44,10 @@ public class DBContract  {
         public static final String COLUMN_BIKES = "bikes";
         public static final String COLUMN_NEARBYSTATIONS = "nearbyStations";
         public static final String COLUMN_STATUS = "status";
+        public static final String COLUMN_FAVORITE = "favorite";
 
         public static Uri buildStationUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
-
-    /* Inner class that defines the table contents of the location table */
-    public static final class FavouritesEntry implements BaseColumns {
-
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVOURITES).build();
-
-        public static final String CONTENT_TYPE =
-                "vnd.android.cursor.dir/" + CONTENT_AUTHORITY + "/" + PATH_FAVOURITES;
-        public static final String CONTENT_ITEM_TYPE =
-                "vnd.android.cursor.item/" + CONTENT_AUTHORITY + "/" + PATH_FAVOURITES;
-
-        // Table name
-        public static final String TABLE_NAME = "favourites";
-
-
-
-
-        public static final String COLUMN_ID = "id";
-        public static final String COLUMN_LATITUDE = "latitude";
-        public static final String COLUMN_LONGITUDE = "longitude";
-        public static final String COLUMN_NAME = "name";
-
-        public static Uri buildStationUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI, id);
-        }
-    }
-
-    public static final class JoinEntry {
-
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_JOIN).build();
-
-    }
-
-    public static final class JoinConditionEntry {
-
-        public static final Uri CONTENT_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_JOIN_CONDITION).build();
-
-    }
-
 }

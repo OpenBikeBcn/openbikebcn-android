@@ -76,7 +76,7 @@ public class StationArrayAdapter extends ArrayAdapter<String> {
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             Utils.getInstance().deleteFavourite(context, placeHolder.station);
-            favoritesFragment.init(favoritesFragment.getView());
+            favoritesFragment.updateFavorites();
             return false;
         }
     });

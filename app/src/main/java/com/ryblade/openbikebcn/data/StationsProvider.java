@@ -15,9 +15,6 @@ public class StationsProvider extends ContentProvider {
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private StationsDbHelper mOpenHelper;
     private static final int STATION = 100;
-    private static final int FAVOURITES = 101;
-    private static final int JOIN_STATION_FAVOURITES = 102;
-    private static final int JOIN_STATION_FAVOURITES_CONDITION = 103;
 
 
     private static UriMatcher buildUriMatcher() {
@@ -33,15 +30,6 @@ public class StationsProvider extends ContentProvider {
         // For each type of URI you want to add, create a corresponding code.
         matcher.addURI(authority, DBContract.PATH_STATIONS, STATION);
         matcher.addURI(authority, DBContract.PATH_STATIONS+ "/*", STATION);
-
-        matcher.addURI(authority, DBContract.PATH_FAVOURITES, FAVOURITES);
-        matcher.addURI(authority, DBContract.PATH_FAVOURITES+ "/*", FAVOURITES);
-
-        matcher.addURI(authority, DBContract.PATH_JOIN, JOIN_STATION_FAVOURITES);
-        matcher.addURI(authority, DBContract.PATH_JOIN+ "/*", JOIN_STATION_FAVOURITES);
-
-        matcher.addURI(authority, DBContract.PATH_JOIN_CONDITION, JOIN_STATION_FAVOURITES_CONDITION);
-        matcher.addURI(authority, DBContract.PATH_JOIN_CONDITION+ "/*", JOIN_STATION_FAVOURITES_CONDITION);
 
         return matcher;
     }
@@ -70,29 +58,8 @@ public class StationsProvider extends ContentProvider {
                 );
                 break;
             }
-            case FAVOURITES: {
-                retCursor = mOpenHelper.getReadableDatabase().query(
-                        DBContract.FavouritesEntry.TABLE_NAME,
-                        projection,
-                        selection,
-                        selectionArgs,
-                        null,
-                        null,
-                        sortOrder
-                );
-                break;
-            }
-            case JOIN_STATION_FAVOURITES: {
-                retCursor = mOpenHelper.getReadableDatabase().rawQuery("SELECT s.id, s.type, s.latitude, s.longitude, s.streetName, s.streetNumber, s.altitude, s.slots, s.bikes, s.nearbyStations, s.status FROM stations s, favourites f WHERE s.id = f.id", null);
-                break;
-            }
-            case JOIN_STATION_FAVOURITES_CONDITION: {
-                retCursor = mOpenHelper.getReadableDatabase().rawQuery("SELECT s.id, s.type, s.latitude, s.longitude, s.streetName, s.streetNumber, s.altitude, s.slots, s.bikes, s.nearbyStations, s.status FROM stations s, favourites f WHERE s.id = f.id AND (s.bikes < 5 OR s.slots < 5)", null);
-                break;
-            }
-
-        default:
-                throw new UnsupportedOperationException("Unknown uri: " + uri);
+            default:
+                    throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
         return retCursor;
@@ -105,8 +72,6 @@ public class StationsProvider extends ContentProvider {
         switch (match) {
             case STATION:
                 return DBContract.StationsEntry.CONTENT_TYPE;
-            case FAVOURITES:
-                return DBContract.FavouritesEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -127,14 +92,6 @@ public class StationsProvider extends ContentProvider {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
             }
-            case FAVOURITES: {
-                long _id = db.insert(DBContract.FavouritesEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
-                    returnUri = DBContract.FavouritesEntry.buildStationUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into " + uri);
-                break;
-            }
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -151,10 +108,6 @@ public class StationsProvider extends ContentProvider {
             case STATION:
                 rowsDeleted = db.delete(
                         DBContract.StationsEntry.TABLE_NAME, selection, selectionArgs);
-                break;
-            case FAVOURITES:
-                rowsDeleted = db.delete(
-                        DBContract.FavouritesEntry.TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -178,10 +131,6 @@ public class StationsProvider extends ContentProvider {
                 rowsUpdated = db.update(DBContract.StationsEntry.TABLE_NAME, values, selection,
                         selectionArgs);
                 break;
-            case FAVOURITES:
-                rowsUpdated = db.update(DBContract.FavouritesEntry.TABLE_NAME, values, selection,
-                        selectionArgs);
-                break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
@@ -203,22 +152,6 @@ public class StationsProvider extends ContentProvider {
                 try {
                     for (ContentValues value : values) {
                         long _id = db.insert(DBContract.StationsEntry.TABLE_NAME, null, value);
-                        if (_id != -1) {
-                            returnCount++;
-                        }
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                return returnCount;
-            case FAVOURITES:
-                db.beginTransaction();
-                returnCount = 0;
-                try {
-                    for (ContentValues value : values) {
-                        long _id = db.insert(DBContract.FavouritesEntry.TABLE_NAME, null, value);
                         if (_id != -1) {
                             returnCount++;
                         }
