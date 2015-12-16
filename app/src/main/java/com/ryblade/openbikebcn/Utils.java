@@ -74,7 +74,7 @@ public class Utils {
         new FetchAPITask(context, FetchAPITask.FAVOURITES_API_URL).execute();
         ArrayList<Station> stations = new ArrayList<>();
 
-        Cursor allItems = context.getContentResolver().query(DBContract.FavouritesEntry.CONTENT_URI, null, null, null, null);
+        Cursor allItems = context.getContentResolver().query(DBContract.JoinEntry.CONTENT_URI, null, null, null, null);
 
         Station station;
         if (allItems != null) {
@@ -82,17 +82,17 @@ public class Utils {
 
                 station = new Station();
 
-                int id = allItems.getInt(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_ID));
-                String type = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_TYPE));
-                Double latitude = allItems.getDouble(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_LATITUDE));
-                Double longitude = allItems.getDouble(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_LONGITUDE));
-                String streetName = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_STREETNAME));
-                String streetNum = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_STREETNUMBER));
-                Double altitude = allItems.getDouble(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_ALTITUDE));
-                int slots = allItems.getInt(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_SLOTS));
-                int bikes = allItems.getInt(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_BIKES));
-                String nearbyStations = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_NEARBYSTATIONS));
-                String status = allItems.getString(allItems.getColumnIndex(DBContract.FavouritesEntry.COLUMN_STATUS));
+                int id = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_ID));
+                String type = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_TYPE));
+                Double latitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_LATITUDE));
+                Double longitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_LONGITUDE));
+                String streetName = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STREETNAME));
+                String streetNum = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STREETNUMBER));
+                Double altitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_ALTITUDE));
+                int slots = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_SLOTS));
+                int bikes = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_BIKES));
+                String nearbyStations = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_NEARBYSTATIONS));
+                String status = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STATUS));
 
 
                 station.setId(id);
@@ -141,5 +141,48 @@ public class Utils {
 
 //        context.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI,
 //                DBContract.FavouritesEntry.COLUMN_ID + "=" + station.getId(), null);
+    }
+
+    public ArrayList<Station> getNotificationStations(Context context) {
+        Cursor allItems = context.getContentResolver().query(DBContract.JoinConditionEntry.CONTENT_URI,null,null,null,null,null);
+        ArrayList<Station> stations = new ArrayList<>();
+        Station station;
+        if (allItems != null) {
+            while(allItems.moveToNext()) {
+
+                station = new Station();
+
+                int id = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_ID));
+                String type = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_TYPE));
+                Double latitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_LATITUDE));
+                Double longitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_LONGITUDE));
+                String streetName = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STREETNAME));
+                String streetNum = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STREETNUMBER));
+                Double altitude = allItems.getDouble(allItems.getColumnIndex(StationsEntry.COLUMN_ALTITUDE));
+                int slots = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_SLOTS));
+                int bikes = allItems.getInt(allItems.getColumnIndex(StationsEntry.COLUMN_BIKES));
+                String nearbyStations = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_NEARBYSTATIONS));
+                String status = allItems.getString(allItems.getColumnIndex(StationsEntry.COLUMN_STATUS));
+
+
+                station.setId(id);
+                station.setType(type);
+                station.setLatitude(latitude);
+                station.setLongitude(longitude);
+                station.setStreetName(streetName);
+                station.setStreetNumber(streetNum);
+                station.setAltitude(altitude);
+                station.setSlots(slots);
+                station.setBikes(bikes);
+                station.setNearbyStations(nearbyStations);
+                station.setStatus(status);
+
+
+                stations.add(station);
+            }
+            allItems.close();
+        }
+
+        return stations;
     }
 }

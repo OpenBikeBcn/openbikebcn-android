@@ -116,14 +116,62 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
             cVVector.add(rankValues);
 
         }
-        if (cVVector.size() > 0 && API_URL.equals(BICING_API_URL)) {
+        if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
             mContext.getContentResolver().delete(StationsEntry.CONTENT_URI, null, null);
             mContext.getContentResolver().bulkInsert(StationsEntry.CONTENT_URI, cvArray);
 
         }
-        else if (cVVector.size() > 0 && API_URL.equals(FAVOURITES_API_URL)) {
+    }
+
+    private void getFavouritesDataFromJson(String stationsJSONString) throws JSONException {
+
+        // These are the names of the JSON objects that need to be extracted.
+
+//        "id": "1",
+//        "id_bicing": "2",
+//        "name": "1 - Gran Via Corts Catalanes - 760",
+//        "latitude":41.393699,
+//        "longitude":2.181137
+
+        Log.v(LOG_TAG, "Fetching favourites!!!");
+        final String ID_STATION = "id_bicing";
+        final String NAME_STATION = "name";
+        final String LATITUDE_STATION = "latitude";
+        final String LONGITUDE_STATION = "longitude";
+
+        JSONObject stationsObject = new JSONObject(stationsJSONString);
+
+        JSONArray stationsJSONArray = stationsObject.getJSONArray("stations");
+        Vector<ContentValues> cVVector = new Vector<ContentValues>(stationsJSONArray.length());
+
+        for(int i = 0; i < stationsJSONArray.length(); i++) {
+            // These are the values that will be collected.
+
+            String idString, latitudeString, longitudeString, name;
+
+            // Get the JSON object representing the player
+            JSONObject stationObject = stationsJSONArray.getJSONObject(i);
+
+            idString = stationObject.getString(ID_STATION);
+            int id = Integer.parseInt(idString);
+            latitudeString = stationObject.getString(LATITUDE_STATION);
+            double latitude = Double.parseDouble(latitudeString);
+            longitudeString = stationObject.getString(LONGITUDE_STATION);
+            double longitude = Double.parseDouble(longitudeString);
+            name = stationObject.getString(NAME_STATION);
+
+            ContentValues rankValues = new ContentValues();
+            rankValues.put(DBContract.FavouritesEntry.COLUMN_ID, id);
+            rankValues.put(DBContract.FavouritesEntry.COLUMN_LATITUDE, latitude);
+            rankValues.put(DBContract.FavouritesEntry.COLUMN_LONGITUDE, longitude);
+            rankValues.put(DBContract.FavouritesEntry.COLUMN_NAME, name);
+
+            cVVector.add(rankValues);
+
+        }
+        if (cVVector.size() > 0) {
             ContentValues[] cvArray = new ContentValues[cVVector.size()];
             cVVector.toArray(cvArray);
             mContext.getContentResolver().delete(DBContract.FavouritesEntry.CONTENT_URI, null, null);
@@ -194,7 +242,10 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
         }
 
         try {
-            getStationsDataFromJson(stationJsonString);
+            if(API_URL.equals(BICING_API_URL))
+                getStationsDataFromJson(stationJsonString);
+            else if(API_URL.equals(FAVOURITES_API_URL))
+                getFavouritesDataFromJson(stationJsonString);
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
             e.printStackTrace();

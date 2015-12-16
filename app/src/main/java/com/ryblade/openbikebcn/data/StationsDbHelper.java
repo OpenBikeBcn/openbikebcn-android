@@ -39,16 +39,9 @@ public class StationsDbHelper extends SQLiteOpenHelper {
         final String SQL_CREATE_FAVOURITES_TABLE = "CREATE TABLE " + DBContract.FavouritesEntry.TABLE_NAME + " (" +
                 DBContract.FavouritesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 DBContract.FavouritesEntry.COLUMN_ID + " INTEGER NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_TYPE + " TEXT NOT NULL, " +
                 DBContract.FavouritesEntry.COLUMN_LATITUDE + " DOUBLE NOT NULL, " +
                 DBContract.FavouritesEntry.COLUMN_LONGITUDE + " DOUBLE NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_STREETNAME + " TEXT NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_STREETNUMBER + " TEXT NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_ALTITUDE + " DOUBLE NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_SLOTS + " INTEGER NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_BIKES + " INTEGER NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_NEARBYSTATIONS + " TEXT NOT NULL, " +
-                DBContract.FavouritesEntry.COLUMN_STATUS+ " TEXT NOT NULL);";
+                DBContract.FavouritesEntry.COLUMN_NAME + " TEXT NOT NULL);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_STATIONS_TABLE);
         sqLiteDatabase.execSQL(SQL_CREATE_FAVOURITES_TABLE);

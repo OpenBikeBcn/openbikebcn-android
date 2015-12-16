@@ -16,6 +16,8 @@ public class StationsProvider extends ContentProvider {
     private StationsDbHelper mOpenHelper;
     private static final int STATION = 100;
     private static final int FAVOURITES = 101;
+    private static final int JOIN_STATION_FAVOURITES = 102;
+    private static final int JOIN_STATION_FAVOURITES_CONDITION = 103;
 
 
     private static UriMatcher buildUriMatcher() {
@@ -34,6 +36,12 @@ public class StationsProvider extends ContentProvider {
 
         matcher.addURI(authority, DBContract.PATH_FAVOURITES, FAVOURITES);
         matcher.addURI(authority, DBContract.PATH_FAVOURITES+ "/*", FAVOURITES);
+
+        matcher.addURI(authority, DBContract.PATH_JOIN, JOIN_STATION_FAVOURITES);
+        matcher.addURI(authority, DBContract.PATH_JOIN+ "/*", JOIN_STATION_FAVOURITES);
+
+        matcher.addURI(authority, DBContract.PATH_JOIN_CONDITION, JOIN_STATION_FAVOURITES_CONDITION);
+        matcher.addURI(authority, DBContract.PATH_JOIN_CONDITION+ "/*", JOIN_STATION_FAVOURITES_CONDITION);
 
         return matcher;
     }
@@ -61,7 +69,8 @@ public class StationsProvider extends ContentProvider {
                         sortOrder
                 );
                 break;
-            }case FAVOURITES: {
+            }
+            case FAVOURITES: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         DBContract.FavouritesEntry.TABLE_NAME,
                         projection,
@@ -73,8 +82,16 @@ public class StationsProvider extends ContentProvider {
                 );
                 break;
             }
+            case JOIN_STATION_FAVOURITES: {
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery("SELECT s.id, s.type, s.latitude, s.longitude, s.streetName, s.streetNumber, s.altitude, s.slots, s.bikes, s.nearbyStations, s.status FROM stations s, favourites f WHERE s.id = f.id", null);
+                break;
+            }
+            case JOIN_STATION_FAVOURITES_CONDITION: {
+                retCursor = mOpenHelper.getReadableDatabase().rawQuery("SELECT s.id, s.type, s.latitude, s.longitude, s.streetName, s.streetNumber, s.altitude, s.slots, s.bikes, s.nearbyStations, s.status FROM stations s, favourites f WHERE s.id = f.id AND (s.bikes < 5 OR s.slots < 5)", null);
+                break;
+            }
 
-            default:
+        default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
         }
         retCursor.setNotificationUri(getContext().getContentResolver(), uri);
@@ -216,7 +233,5 @@ public class StationsProvider extends ContentProvider {
                 return super.bulkInsert(uri, values);
         }
     }
-
-
 
 }
