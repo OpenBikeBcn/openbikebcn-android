@@ -10,10 +10,17 @@ import java.util.List;
  */
 public class Route {
 
+    private int idStationOrigin;
+    private int idStationArrival;
+
     private GeoPoint startPoint;
     private GeoPoint endPoint;
 
     private List<LatLng> route;
+
+    private double distance;
+
+    private int time;
 
 
     public Route() {
@@ -87,5 +94,38 @@ public class Route {
         }
 
         return path;
+    }
+
+    public double getDistance() {
+        return distance;
+    }
+
+    public void setDistance(double distance) {
+        this.distance = distance;
+    }
+
+
+    public int getTime() {
+        return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
+    }
+
+    public int getIdStationOrigin() {
+        return idStationOrigin;
+    }
+
+    public void setIdStationOrigin(int idStationOrigin) {
+        this.idStationOrigin = idStationOrigin;
+    }
+
+    public int getIdStationArrival() {
+        return idStationArrival;
+    }
+
+    public void setIdStationArrival(int idStationArrival) {
+        this.idStationArrival = idStationArrival;
     }
 }

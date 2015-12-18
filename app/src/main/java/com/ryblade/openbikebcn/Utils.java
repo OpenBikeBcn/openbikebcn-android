@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
+import com.ryblade.openbikebcn.Model.Route;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.data.DBContract;
 import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
@@ -18,6 +19,8 @@ import com.ryblade.openbikebcn.data.StationsProvider;
  */
 public class Utils {
     private static Utils ourInstance = new Utils();
+
+    public Boolean appInBackground = false;
 
     public static Utils getInstance() {
         return ourInstance;
@@ -72,9 +75,9 @@ public class Utils {
         return stations;
     }
 
-    public void updateFavouriteStations(final Context context, final FavoritesFragment fragment) {
-        new FetchAPITask(context, FetchAPITask.FAVOURITES_API_URL).execute();
-    }
+//    public void updateFavouriteStations(final Context context, final FavoritesFragment fragment) {
+//        new FetchAPITask(context, FetchAPITask.FAVOURITES_API_URL).execute();
+//    }
 
     public ArrayList<Station> getFavouriteStations(Context context) {
         ArrayList<Station> stations = new ArrayList<>();
@@ -192,5 +195,10 @@ public class Utils {
         }
 
         return stations;
+    }
+
+
+    public void postRoute(Context context, Route route) {
+        new PostRouteAPITask(context, route).execute();
     }
 }

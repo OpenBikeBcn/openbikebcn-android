@@ -7,6 +7,8 @@ import android.os.Message;
 import android.util.Log;
 
 import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
+import com.ryblade.openbikebcn.Fragments.OnRouteFetched;
+import com.ryblade.openbikebcn.Service.OnLoadStations;
 import com.ryblade.openbikebcn.data.DBContract;
 import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
 
@@ -40,9 +42,12 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
     public static String INSERT = "insert";
     public static String UPDATE = "update";
 
-    public FetchAPITask(Context context, String url) {
+    private OnLoadStations listener;
+
+    public FetchAPITask(Context context, String url, OnLoadStations listener) {
         mContext = context;
         API_URL = url;
+        this.listener = listener;
         if(url.equals(BICING_API_URL))
             this.action = Utils.getInstance().getAllStations(context).size() > 0 ? UPDATE : INSERT;
     }
@@ -285,6 +290,10 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
         return null;
     }
 
-
+    @Override
+    protected void onPostExecute(Void voids) {
+        listener.OnStationsLoaded();
+        super.onPostExecute(voids);
+    }
 }
 

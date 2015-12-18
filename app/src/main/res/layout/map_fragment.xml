@@ -4,9 +4,31 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
+
     <org.osmdroid.views.MapView android:id="@+id/map"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:drawable="@android:color/secondary_text_dark"
+        android:backgroundTint="@android:color/white"
+        android:id="@+id/endRouteContainer"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:animateLayoutChanges="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End Current Route"
+            android:id="@+id/endRouteBtn"
+            />
+
+    </LinearLayout>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:drawable="@android:color/secondary_text_dark"

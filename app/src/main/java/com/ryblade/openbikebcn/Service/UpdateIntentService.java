@@ -7,6 +7,7 @@ import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import com.ryblade.openbikebcn.FetchAPITask;
+import com.ryblade.openbikebcn.Utils;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -15,15 +16,7 @@ import com.ryblade.openbikebcn.FetchAPITask;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class UpdateIntentService extends IntentService {
-
-
-
-//    public static void startActionAPI(Context context, String param1, String param2) {
-//        Intent intent = new Intent(context, UpdateIntentService.class);
-//        context.startService(intent);
-//    }
-
+public class UpdateIntentService extends IntentService implements OnLoadStations{
 
 
     public UpdateIntentService() {
@@ -41,6 +34,15 @@ public class UpdateIntentService extends IntentService {
     }
 
     private void handleFetchFromAPI() {
-        new FetchAPITask(this, FetchAPITask.BICING_API_URL).execute();
+        new FetchAPITask(this, FetchAPITask.BICING_API_URL, this).execute();
+    }
+
+    public void OnStationsLoaded() {
+
+        if (Utils.getInstance().appInBackground) {
+
+            //send notification!!
+
+        }
     }
 }

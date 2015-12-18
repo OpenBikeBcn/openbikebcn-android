@@ -55,6 +55,14 @@ public class FetchRouteAPITask extends AsyncTask <GeoPoint, Void, Route> {
         String encodedRoute = routeObject.getString("shape");
         route.setEncodedRoute(encodedRoute);
 
+        JSONObject summaryObject = routeObject.getJSONObject("summary");
+
+        int time = summaryObject.getInt("time");
+        double distance = summaryObject.getDouble("length");
+
+        route.setDistance(distance);
+        route.setTime(time);
+
         JSONArray locationsObject = tripObject.getJSONArray("locations");
         JSONObject locationStart = locationsObject.getJSONObject(0);
         JSONObject locationEnd = locationsObject.getJSONObject(1);

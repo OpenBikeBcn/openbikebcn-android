@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +28,9 @@ import com.ryblade.openbikebcn.FetchRouteAPITask;
 import com.ryblade.openbikebcn.Model.LatLng;
 import com.ryblade.openbikebcn.Model.Route;
 import com.ryblade.openbikebcn.Model.Station;
+import com.ryblade.openbikebcn.PostRouteAPITask;
 import com.ryblade.openbikebcn.R;
+import com.ryblade.openbikebcn.Service.OnLoadStations;
 import com.ryblade.openbikebcn.Utils;
 
 import org.osmdroid.api.IMapController;
@@ -51,7 +54,7 @@ import java.util.List;
 
 
 
-public class MapFragment extends Fragment implements LocationListener, OnRouteFetched{
+public class MapFragment extends Fragment implements LocationListener, OnRouteFetched {
 
     private final String LOG_TAG = MapFragment.class.getSimpleName();
 
@@ -60,6 +63,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     private IMapController mapController;
     private MapView mapView;
     private LinearLayout stationInfo;
+    private LinearLayout endRouteContainer;
     private FloatingActionButton syncButton;
     private boolean isStationInfoHiden;
 
@@ -68,9 +72,12 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     private Station currentStartStation;
     private Station currentEndStation;
 
+    private Route currentRoute;
+
+    private Polyline lastRoute;
+
     private final double MAP_DEFAULT_LATITUDE = 41.38791700;
     private final double MAP_DEFAULT_LONGITUDE = 2.16991870;
-
 
 
     public MapFragment() {
@@ -90,6 +97,27 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
 
         initMapView(rootView);
         initStationInfo(rootView);
+
+        endRouteContainer = (LinearLayout) rootView.findViewById(R.id.endRouteContainer);
+        Button endRouteBtn = (Button) rootView.findViewById(R.id.endRouteBtn);
+
+        endRouteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (currentStartStation != null && currentEndStation != null) {
+                    if (lastRoute != null) {
+                        mapView.getOverlays().remove(lastRoute);
+                        lastRoute = null;
+                        endRouteContainer.animate().translationY(-endRouteContainer.getHeight());
+
+                        mapView.invalidate();
+
+                        Utils.getInstance().postRoute(getContext(),currentRoute);
+                    }
+                }
+            }
+        });
 
         return rootView;
     }
@@ -111,11 +139,11 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
 
             return true;
         } else if (id == R.id.action_start_route) {
-                startRouteClicked();
+            startRouteClicked();
 
             return true;
         } else if (id == R.id.action_end_route) {
-               endRouteClicked();
+            endRouteClicked();
 
             return true;
         }
@@ -166,11 +194,11 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     public void updateCurrentLocation(GeoPoint point, float accuracy, boolean center) {
         currentPosition.setPosition(point);
         accuracyCircle.setPoints(Polygon.pointsAsCircle(point, accuracy));
-        if(!mapView.getOverlays().contains(currentPosition)) {
+        if (!mapView.getOverlays().contains(currentPosition)) {
             mapView.getOverlays().add(currentPosition);
             mapView.getOverlays().add(accuracyCircle);
         }
-        if(center)
+        if (center)
             mapController.animateTo(point);
         mapView.invalidate();
     }
@@ -180,8 +208,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     }
 
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
         int lat = (int) (location.getLatitude() * 1E6);
         int lng = (int) (location.getLongitude() * 1E6);
         GeoPoint point = new GeoPoint(lat, lng);
@@ -189,28 +216,27 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     }
 
     @Override
-    public void onProviderDisabled(String provider)
-    {
+    public void onProviderDisabled(String provider) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onProviderEnabled(String provider)
-    {
+    public void onProviderEnabled(String provider) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras)
-    {
+    public void onStatusChanged(String provider, int status, Bundle extras) {
         // TODO Auto-generated method stub
 
     }
+
+
 
     private void dismissMapShownInfo() {
-        if(!isStationInfoHiden) {
+        if (!isStationInfoHiden) {
             syncButton.animate().translationY(30);
             stationInfo.animate().translationY(stationInfo.getHeight());
             isStationInfoHiden = true;
@@ -287,8 +313,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
 
         for (String provider : locationManager.getProviders(true)) {
             location = locationManager.getLastKnownLocation(provider);
-            if (location != null)
-            {
+            if (location != null) {
                 updateCurrentLocation(new GeoPoint(location), location.getAccuracy(), true);
                 locationManager.requestLocationUpdates(provider, 0, 0, this);
                 break;
@@ -296,8 +321,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
         }
 
         //add car position
-        if (location == null)
-        {
+        if (location == null) {
             location = new Location(LocationManager.GPS_PROVIDER);
             location.setLatitude(MAP_DEFAULT_LATITUDE);
             location.setLongitude(MAP_DEFAULT_LONGITUDE);
@@ -314,7 +338,7 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
     }
 
     public void startRouteClicked() {
-        Log.v(LOG_TAG,"Start route clicked");
+        Log.v(LOG_TAG, "Start route clicked");
         currentStartStation = currentStation;
         dismissMapShownInfo();
     }
@@ -323,13 +347,8 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
         Log.v(LOG_TAG, "End route clicked");
         if (currentStartStation != null) {
             currentEndStation = currentStation;
-
-            /**
-             * TODO
-             * Create the map route
-             */
             drawRoute();
-
+            endRouteContainer.animate().translationY(endRouteContainer.getHeight());
         } else {
             Toast.makeText(getActivity(), "Please, select a Start Station", Toast.LENGTH_SHORT).show();
 
@@ -356,17 +375,23 @@ public class MapFragment extends Fragment implements LocationListener, OnRouteFe
             }
 
             Road road = roadManager.getRoad(waypoints);
-
+            route.setIdStationOrigin(currentStartStation.getId());
+            route.setIdStationArrival(currentEndStation.getId());
             Polyline roadOverlay = RoadManager.buildRoadOverlay(road, getActivity());
             roadOverlay.setWidth(10);
 
+            if (lastRoute != null) mapView.getOverlays().remove(lastRoute);
             mapView.getOverlays().add(roadOverlay);
+            lastRoute = roadOverlay;
+
+            currentRoute = route;
 
             mapView.invalidate();
 
         } else {
-            Toast.makeText(getContext(),"No routes found",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "No routes found", Toast.LENGTH_SHORT).show();
         }
 
     }
+
 }

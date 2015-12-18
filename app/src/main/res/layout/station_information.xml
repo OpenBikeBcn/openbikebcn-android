@@ -8,34 +8,52 @@
     android:gravity="center_horizontal">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:orientation="horizontal">
 
-        <TextView
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="99"
+            android:layout_marginLeft="30dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/stationId"
+                android:layout_gravity="center"
+                android:text="25"
+                android:textColor="@android:color/black"
+                android:textSize="10pt"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center"
+                android:id="@+id/stationAddress"
+                android:text="C/Cavallers, 35"
+                android:textColor="@android:color/black"
+                android:textSize="10pt"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/stationId"
-            android:layout_gravity="center"
-            android:text="25"
-            android:textColor="@android:color/black"
-            android:textSize="10pt"/>
+            android:gravity="right"
+            android:layout_weight="100">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_gravity="center"
-            android:id="@+id/stationAddress"
-            android:text="C/Cavallers, 35"
-            android:textColor="@android:color/black"
-            android:textSize="10pt"/>
-
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_more_vert_black_24dp"
-            android:contentDescription="@string/menuButtonDescr" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_more_vert_black_24dp"
+                android:contentDescription="@string/menuButtonDescr" />
+        </LinearLayout>
 
     </LinearLayout>
 

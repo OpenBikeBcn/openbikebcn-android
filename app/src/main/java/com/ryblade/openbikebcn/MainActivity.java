@@ -28,6 +28,7 @@ import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Fragments.MapFragment;
 import com.ryblade.openbikebcn.Model.Station;
 import com.ryblade.openbikebcn.Service.MyAlarmReceiver;
+import com.ryblade.openbikebcn.Service.OnLoadStations;
 import com.ryblade.openbikebcn.Wearable.ActionsPreset;
 import com.ryblade.openbikebcn.Wearable.NotificationIntentReceiver;
 import com.ryblade.openbikebcn.Wearable.NotificationPreset;
@@ -36,7 +37,7 @@ import com.ryblade.openbikebcn.Wearable.PriorityPreset;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback, OnLoadStations {
 
     private static final int MSG_POST_NOTIFICATIONS = 0;
     private static final long POST_NOTIFICATIONS_DELAY_MS = 200;
@@ -76,20 +77,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
         }
 
-//        scheduleAlarm();
+        scheduleAlarm();
 //        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
 
     }
 
     private void updateBikesDatabase() {
-        new FetchAPITask(this, FetchAPITask.BICING_API_URL).execute();
+        new FetchAPITask(this, FetchAPITask.BICING_API_URL, this).execute();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+        return false;
     }
 
     @Override
@@ -323,5 +324,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return true;
         }
         return false;
+    }
+
+
+    public void OnStationsLoaded() {
+        if (currentFragment!= null && currentFragment.getClass().isInstance(MapFragment.class)) {
+            ((MapFragment) currentFragment).deleteAllMarkers();
+            ((MapFragment) currentFragment).updateStations();
+            ((MapFragment) currentFragment).updateLocation();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Utils.getInstance().appInBackground = false;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Utils.getInstance().appInBackground = true;
     }
 }
