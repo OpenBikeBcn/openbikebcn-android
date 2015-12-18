@@ -65,6 +65,7 @@ public class FavoritesFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.favorites_fragment, container, false);
+        Log.d("openbikebcn","Favorites fragment created");
         init(rootView);
 
         return rootView;
@@ -77,7 +78,7 @@ public class FavoritesFragment extends Fragment {
 
     public void init(View v) {
         stationsList = ((ListView) v.findViewById(R.id.favouritesList));
-        new FetchFavoritesAPITask(getActivity()).execute();
+        new FetchFavoritesAPITask(getActivity(),2).execute();
     }
 
     public void updateFavorites() {
@@ -92,10 +93,11 @@ public class FavoritesFragment extends Fragment {
         private final String LOG_TAG = FetchFavoritesAPITask.class.getSimpleName();
         private final Context mContext;
 
-        public String FAVOURITES_API_URL = "http://openbike.byte.cat/app_dev.php/api/stations";
+        public String FAVOURITES_API_URL = "http://openbike.byte.cat/app_dev.php/api/stations?filters[userId]=";
 
-        public FetchFavoritesAPITask(Context context) {
+        public FetchFavoritesAPITask(Context context, int userId) {
             mContext = context;
+            FAVOURITES_API_URL += userId;
         }
 
         private void getFavouritesDataFromJson(String stationsJSONString) throws JSONException {
@@ -167,6 +169,7 @@ public class FavoritesFragment extends Fragment {
 
 
             try {
+                Log.d(LOG_TAG, "Start fetching favorites");
                 URL url = new URL(this.FAVOURITES_API_URL);
 
                 // Create the request to OpenWeatherMap, and open the connection

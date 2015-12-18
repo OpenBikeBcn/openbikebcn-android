@@ -23,18 +23,23 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
 
     private final String LOG_TAG = FetchAPITask.class.getSimpleName();
     private final Context mContext;
-    private JSONObject parameters;
+    private JSONObject parametersPost;
+    private JSONObject parametersDelete;
     private String method;
+    private String idStation;
 
     public static String POST = "POST";
     public static String DELETE = "DELETE";
 
     public PostFavouriteAPITask(Context mContext, int idUser, int idStation, String method) {
         this.mContext = mContext;
-        parameters = new JSONObject();
+        this.idStation = String.valueOf(idStation);
+        parametersPost = new JSONObject();
+        parametersDelete = new JSONObject();
         try {
-            parameters.put("idUser", idUser);
-            parameters.put("idStation", idStation);
+            parametersPost.put("idStation", idStation);
+            parametersPost.put("idUser", idUser);
+            parametersDelete.put("idUser", idUser);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -48,7 +53,16 @@ public class PostFavouriteAPITask extends AsyncTask <Void,Void,Void> {
         HttpURLConnection urlConnection = null;
 
         try {
-            final String API_URL = "http://openbike.byte.cat/app_dev.php/api/stations";
+            String API_URL = "http://openbike.byte.cat/app_dev.php/api/stations";
+
+            JSONObject parameters;
+
+            if(method.equals(DELETE)) {
+                parameters = parametersDelete;
+                API_URL += "/"+idStation;
+            }
+            else
+                parameters = parametersPost;
 
             URL url = new URL(API_URL);
 

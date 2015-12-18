@@ -17,6 +17,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -75,7 +76,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     .commit();
         }
 
-        updateBikesDatabase();
 //        scheduleAlarm();
 //        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
 
@@ -157,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_fav) {
             // Open fav fragment
 
+            Log.d("openbikebcn","Favorites clicked");
             FavoritesFragment newFragment = new FavoritesFragment();
 
             currentFragment = newFragment;
