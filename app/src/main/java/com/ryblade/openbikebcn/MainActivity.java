@@ -37,20 +37,13 @@ import com.ryblade.openbikebcn.Wearable.PriorityPreset;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, Handler.Callback, OnLoadStations {
-
-    private static final int MSG_POST_NOTIFICATIONS = 0;
-    private static final long POST_NOTIFICATIONS_DELAY_MS = 200;
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, OnLoadStations {
 
     private Fragment currentFragment;
-    private int postedNotificationCount = 0;
-    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        mHandler = new Handler(this);
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -260,70 +253,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
         alarm.cancel(pIntent);
-    }
-
-    private void updateNotifications(boolean cancelExisting, ArrayList<Station> stations) {
-        // Disable messages to skip notification deleted messages during cancel.
-        sendBroadcast(new Intent(NotificationIntentReceiver.ACTION_DISABLE_MESSAGES)
-                .setClass(this, NotificationIntentReceiver.class));
-
-        if (cancelExisting) {
-            // Cancel all existing notifications to trigger fresh-posting behavior: For example,
-            // switching from HIGH to LOW priority does not cause a reordering in Notification Shade.
-            NotificationManagerCompat.from(this).cancelAll();
-            postedNotificationCount = 0;
-
-            // Post the updated notifications on a delay to avoid a cancel+post race condition
-            // with notification manager.
-            mHandler.removeMessages(MSG_POST_NOTIFICATIONS);
-            mHandler.sendEmptyMessageDelayed(MSG_POST_NOTIFICATIONS, POST_NOTIFICATIONS_DELAY_MS);
-        } else {
-            postNotifications(stations);
-        }
-    }
-
-    /**
-     * Post the sample notification(s) using current options.
-     */
-    private void postNotifications(ArrayList<Station> stations) {
-        sendBroadcast(new Intent(NotificationIntentReceiver.ACTION_ENABLE_MESSAGES)
-                .setClass(this, NotificationIntentReceiver.class));
-
-        NotificationPreset preset = new NotificationPreset(0,0,0,stations);
-        CharSequence titlePreset = "OpenBikeBcn";
-        CharSequence textPreset = "";
-        PriorityPreset priorityPreset = new PriorityPreset(R.string.addToFavourites);
-        ActionsPreset actionsPreset = new ActionsPreset(R.string.app_name);
-        NotificationPreset.BuildOptions options = new NotificationPreset.BuildOptions(
-                titlePreset,
-                textPreset,
-                priorityPreset,
-                actionsPreset,
-                false,
-                false,
-                true,
-                true);
-        Notification[] notifications = preset.buildNotifications(this, options);
-
-        // Post new notifications
-        for (int i = 0; i < notifications.length; i++) {
-            NotificationManagerCompat.from(this).notify(i, notifications[i]);
-        }
-        // Cancel any that are beyond the current count.
-        for (int i = notifications.length; i < postedNotificationCount; i++) {
-            NotificationManagerCompat.from(this).cancel(i);
-        }
-        postedNotificationCount = notifications.length;
-    }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        switch (msg.what) {
-            case MSG_POST_NOTIFICATIONS:
-//                postNotifications();
-                return true;
-        }
-        return false;
     }
 
 
