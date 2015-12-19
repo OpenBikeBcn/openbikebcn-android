@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Model.Route;
 import com.ryblade.openbikebcn.Model.Station;
+import com.ryblade.openbikebcn.Model.User;
 import com.ryblade.openbikebcn.data.DBContract;
 import com.ryblade.openbikebcn.data.DBContract.StationsEntry;
 import com.ryblade.openbikebcn.data.StationsProvider;
@@ -21,6 +22,9 @@ public class Utils {
     private static Utils ourInstance = new Utils();
 
     public Boolean appInBackground = false;
+    public User currentUser;
+
+
 
     public static Utils getInstance() {
         return ourInstance;
