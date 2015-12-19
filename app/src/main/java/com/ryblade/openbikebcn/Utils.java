@@ -158,8 +158,8 @@ public class Utils {
 
     public ArrayList<Station> getNotificationStations(Context context) {
         Cursor allItems = context.getContentResolver().query(StationsEntry.CONTENT_URI, null,
-                StationsEntry.COLUMN_FAVORITE + " = ? AND " + StationsEntry.COLUMN_BIKES + " < ?"  +
-                        " = ? AND " + StationsEntry.COLUMN_SLOTS + " < ?", new String[] {"1","5","5"}, null);
+                StationsEntry.COLUMN_FAVORITE + " = 1 AND (" + StationsEntry.COLUMN_BIKES + " < 5 OR "  +
+                        StationsEntry.COLUMN_SLOTS + " < 5)", null, null);
         ArrayList<Station> stations = new ArrayList<>();
         Station station;
         if (allItems != null) {

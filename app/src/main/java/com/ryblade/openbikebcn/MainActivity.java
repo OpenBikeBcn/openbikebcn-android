@@ -243,8 +243,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
                 AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
 
-//        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
-//                10000, pIntent);
+        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
+                10000, pIntent);
     }
 
     public void cancelAlarm() {
