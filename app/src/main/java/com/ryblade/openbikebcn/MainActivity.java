@@ -267,12 +267,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onPause() {
         super.onPause();
-        Utils.getInstance().appInBackground = false;
+        Utils.getInstance().appInBackground = true;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Utils.getInstance().appInBackground = true;
+        Utils.getInstance().appInBackground = false;
     }
 }

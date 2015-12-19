@@ -2,13 +2,18 @@ package com.ryblade.openbikebcn.Service;
 
 import android.app.IntentService;
 import android.app.Notification;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
+import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 import com.ryblade.openbikebcn.FetchAPITask;
 import com.ryblade.openbikebcn.Model.Station;
@@ -18,8 +23,11 @@ import com.ryblade.openbikebcn.Wearable.ActionsPreset;
 import com.ryblade.openbikebcn.Wearable.NotificationIntentReceiver;
 import com.ryblade.openbikebcn.Wearable.NotificationPreset;
 import com.ryblade.openbikebcn.Wearable.PriorityPreset;
+import com.ryblade.openbikebcn.Widget.StationWidgetProvider;
+import com.ryblade.openbikebcn.Widget.WidgetService;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -60,6 +68,39 @@ public class UpdateIntentService extends IntentService implements OnLoadStations
         if (Utils.getInstance().appInBackground) {
             updateNotifications(false, Utils.getInstance().getNotificationStations(this));
         }
+        updateWidget();
+    }
+
+    private void updateWidget() {
+        ComponentName thisWidget = new ComponentName(this, StationWidgetProvider.class);
+        AppWidgetManager manager = AppWidgetManager.getInstance(this);
+        int appWidgetIds [] = manager.getAppWidgetIds(thisWidget);
+
+//        for (int i = 0; i < appWidgetIds.length; ++i) {
+//            RemoteViews remoteViews = updateWidgetListView(this, appWidgetIds[i]);
+//            manager.updateAppWidget(appWidgetIds[i], remoteViews);
+//        }
+
+        manager.notifyAppWidgetViewDataChanged(appWidgetIds,R.id.favouritesWidgetList);
+    }
+
+    private RemoteViews updateWidgetListView(Context context, int appWidgetId) {
+
+        //which layout to show on widget
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(),R.layout.widget_layout);
+
+        //RemoteViews Service needed to provide adapter for ListView
+        Intent svcIntent = new Intent(context, WidgetService.class);
+        //passing app widget id to that RemoteViews Service
+        svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        //setting a unique Uri to the intent
+        //don't know its purpose to me right now
+        svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
+        //setting adapter to listview of the widget
+        remoteViews.setRemoteAdapter(R.id.favouritesWidgetList, svcIntent);
+        //setting an empty view in case of no data
+        remoteViews.setEmptyView(R.id.favouritesWidgetList, R.id.empty_view);
+        return remoteViews;
     }
 
     private void updateNotifications(boolean cancelExisting, ArrayList<Station> stations) {

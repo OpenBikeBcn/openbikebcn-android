@@ -37,7 +37,8 @@
 
         <provider
             android:name=".data.StationsProvider"
-            android:authorities="com.ryblade.openbikebcn" />
+            android:authorities="com.ryblade.openbikebcn"
+            android:exported="true"/>
 
         <receiver
             android:name=".Widget.StationWidgetProvider"
@@ -45,6 +46,7 @@
             android:label="Example Widget" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ryblade.openbikebcn.Widget.StationWidgetProvider.ACTION_WIDGET_RECEIVER"/>
             </intent-filter>
 
             <meta-data

@@ -29,7 +29,7 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
     }
 
     private void populateList() {
-        //stations = Utils.getInstance().getFavouriteStations(context);
+        stations = Utils.getInstance().getFavouriteStations(context);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public void onDataSetChanged() {
-
+        populateList();
     }
 
     @Override

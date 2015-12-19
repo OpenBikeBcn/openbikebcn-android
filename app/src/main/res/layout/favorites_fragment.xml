@@ -6,8 +6,11 @@
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="50dp"
-        android:id="@+id/favouritesList">
+        android:layout_marginTop="55dp"
+        android:background="@android:color/white"
+        android:id="@+id/favouritesList"
+        android:divider="@android:color/black"
+        android:dividerHeight="1.0sp">
 
     </ListView>
 </LinearLayout>

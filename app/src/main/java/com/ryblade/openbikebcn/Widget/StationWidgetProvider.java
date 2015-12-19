@@ -20,6 +20,9 @@ import java.util.Random;
  */
 public class StationWidgetProvider extends AppWidgetProvider {
 
+    public static String ACTION_WIDGET_CONFIGURE = "ConfigureWidget";
+    public static String ACTION_WIDGET_RECEIVER = "ActionReceiverWidget";
+
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager,
                          int[] appWidgetIds) {
