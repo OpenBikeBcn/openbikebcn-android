@@ -78,7 +78,7 @@ public class FavoritesFragment extends Fragment {
 
     public void init(View v) {
         stationsList = ((ListView) v.findViewById(R.id.favouritesList));
-        new FetchFavoritesAPITask(getActivity(),2).execute();
+        new FetchFavoritesAPITask(getActivity(), Utils.getInstance().currentUser.getUserId()).execute();
     }
 
     public void updateFavorites() {

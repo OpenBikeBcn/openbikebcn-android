@@ -28,11 +28,11 @@ public class PostRouteAPITask extends AsyncTask<Void,Void,Void> {
 
     public static String POST = "POST";
 
-    public PostRouteAPITask(Context mContext, Route route) {
+    public PostRouteAPITask(Context mContext, int userId, Route route) {
         this.mContext = mContext;
         parametersPost = new JSONObject();
         try {
-            parametersPost.put("idUser", 2);
+            parametersPost.put("idUser", userId);
             parametersPost.put("idStationOrigin", route.getIdStationOrigin());
             parametersPost.put("idStationArrival", route.getIdStationArrival());
             parametersPost.put("distance", route.getDistance());

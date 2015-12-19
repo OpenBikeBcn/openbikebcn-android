@@ -149,7 +149,7 @@ public class Utils {
     }
 
     public void deleteFavourite(Context context, Station station) {
-        new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.DELETE).execute();
+        new PostFavouriteAPITask(context, currentUser.getUserId(), station.getId(), PostFavouriteAPITask.DELETE).execute();
         ContentValues contentValues = new ContentValues();
         contentValues.put(StationsEntry.COLUMN_FAVORITE, 0);
         context.getContentResolver().update(StationsEntry.CONTENT_URI, contentValues,
@@ -203,6 +203,6 @@ public class Utils {
 
 
     public void postRoute(Context context, Route route) {
-        new PostRouteAPITask(context, route).execute();
+        new PostRouteAPITask(context, currentUser.getUserId(), route).execute();
     }
 }
