@@ -129,7 +129,7 @@ public class Utils {
     }
 
     public void addToFavourites(Context context, Station station) {
-        new PostFavouriteAPITask(context, 2, station.getId(), PostFavouriteAPITask.POST).execute();
+        new PostFavouriteAPITask(context, currentUser.getUserId(), station.getId(), PostFavouriteAPITask.POST).execute();
 
 //        ContentValues rankValues = new ContentValues();
 //

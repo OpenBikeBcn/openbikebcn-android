@@ -37,7 +37,7 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
     public String action;
 
     public static String BICING_API_URL = "http://wservice.viabicing.cat/v2/stations";
-    public static String FAVOURITES_API_URL = "http://openbike.byte.cat/app_dev.php/api/stations";
+    public static String FAVOURITES_API_URL = "http://openbike.byte.cat/app_dev.php/api/stations?filters[userId]=";
 
     public static String INSERT = "insert";
     public static String UPDATE = "update";
@@ -210,7 +210,7 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
             double longitude = Double.parseDouble(longitudeString);
             name = stationObject.getString(NAME_STATION);
 
-            idsArray[0] = idString;
+            idsArray[i] = idString;
             where += "?";
             if(i < stationsJSONArray.length()-1)
                 where += ",";
@@ -219,8 +219,18 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
             where += ")";
             ContentValues rankValues = new ContentValues();
             rankValues.put(StationsEntry.COLUMN_FAVORITE, 1);
-            mContext.getContentResolver().update(StationsEntry.CONTENT_URI, rankValues,
+            int updatedRows = mContext.getContentResolver().update(StationsEntry.CONTENT_URI, rankValues,
                     StationsEntry.COLUMN_ID + where, idsArray);
+            where = " NOT" + where;
+            rankValues = new ContentValues();
+            rankValues.put(StationsEntry.COLUMN_FAVORITE, 0);
+            updatedRows = mContext.getContentResolver().update(StationsEntry.CONTENT_URI, rankValues,
+                    StationsEntry.COLUMN_ID + where, idsArray);
+        }
+        else {
+            ContentValues rankValues = new ContentValues();
+            rankValues.put(StationsEntry.COLUMN_FAVORITE, 0);
+            mContext.getContentResolver().update(StationsEntry.CONTENT_URI, rankValues, null, null);
         }
     }
 
@@ -238,7 +248,11 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
 
 
         try {
-            URL url = new URL(API_URL);
+            URL url;
+            if(API_URL.equals(FAVOURITES_API_URL))
+                url = new URL(API_URL + Utils.getInstance().currentUser.getUserId());
+            else
+                url = new URL(API_URL);
 
             // Create the request to OpenWeatherMap, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
