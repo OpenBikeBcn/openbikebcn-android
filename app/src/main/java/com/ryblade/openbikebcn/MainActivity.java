@@ -268,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     public void OnStationsLoaded() {
-        if (currentFragment!= null && currentFragment.getClass().isInstance(MapFragment.class)) {
+        if (currentFragment != null && MapFragment.class.isInstance(currentFragment)) {
             ((MapFragment) currentFragment).deleteAllMarkers();
             ((MapFragment) currentFragment).updateStations();
             ((MapFragment) currentFragment).updateLocation();
