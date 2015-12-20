@@ -23,6 +23,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
+import android.widget.TextView;
 
 import com.ryblade.openbikebcn.Fragments.FavoritesFragment;
 import com.ryblade.openbikebcn.Fragments.MapFragment;
@@ -53,6 +54,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        Intent intent = new Intent(this, OsmActivity.class);
 //        startActivity(intent);
 
+
+
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -73,18 +78,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         scheduleAlarm();
 //        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
 
+
     }
 
     private void updateBikesDatabase() {
         new FetchAPITask(this, FetchAPITask.BICING_API_URL, this).execute();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return false;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return false;
+//    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -172,6 +178,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         } else if (id == R.id.nav_logout) {
 
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+
+            finish();
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -243,8 +254,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
                 AlarmManager.INTERVAL_FIFTEEN_MINUTES, pIntent);
 
-        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
-                10000, pIntent);
+//        alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, firstMillis,
+//                10000, pIntent);
     }
 
     public void cancelAlarm() {
