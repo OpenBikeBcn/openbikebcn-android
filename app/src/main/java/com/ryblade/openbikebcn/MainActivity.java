@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setSupportActionBar(toolbar);
 
         this.updateBikesDatabase();
+        this.updateFavoritesDatabase();
 //        Intent intent = new Intent(this, OsmActivity.class);
 //        startActivity(intent);
 
@@ -79,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        updateNotifications(false, Utils.getInstance().getFavouriteStations(this));
 
 
+    }
+
+    private void updateFavoritesDatabase() {
+        new FetchAPITask(this, FetchAPITask.FAVOURITES_API_URL, this).execute();
     }
 
     private void updateBikesDatabase() {
