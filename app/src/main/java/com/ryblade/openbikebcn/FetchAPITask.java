@@ -114,6 +114,14 @@ public class FetchAPITask extends AsyncTask <Void, Void, Void>{
                 nearbyStations = stationObject.getString(NEARBY_STATIONS);
                 status = stationObject.getString(STATUS_STATION);
 
+                if(streetName.startsWith("(PK) "))
+                    streetName = streetName.substring(5);
+
+                if(streetName.length() >= 20) {
+                    streetName = streetName.substring(0,19);
+                    streetName += "...";
+                }
+
                 ContentValues rankValues = new ContentValues();
                 rankValues.put(StationsEntry.COLUMN_ID, id);
                 rankValues.put(StationsEntry.COLUMN_TYPE, type);

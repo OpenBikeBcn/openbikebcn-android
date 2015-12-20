@@ -69,7 +69,10 @@ public class StationArrayAdapter extends ArrayAdapter<String> {
 
     placeHolder.station = station;
     placeHolder.id.setText(String.valueOf(station.getId()));
-    placeHolder.address.setText(String.format("%s, %s", station.getStreetName(), station.getStreetNumber()));
+    if(station.getStreetNumber().equals(""))
+      placeHolder.address.setText(station.getStreetName());
+    else
+      placeHolder.address.setText(String.format("%s, %s", station.getStreetName(), station.getStreetNumber()));
     placeHolder.bikes.setText(String.valueOf(station.getBikes()));
     placeHolder.slots.setText(String.valueOf(station.getSlots()));
     placeHolder.deleteButton.setOnTouchListener(new View.OnTouchListener() {

@@ -72,7 +72,10 @@ public class NotificationPreset extends NamedPreset {
         NotificationCompat.InboxStyle style = new NotificationCompat.InboxStyle();
         for(int i = 0; i < stations.size(); ++i) {
             Station station = stations.get(i);
-            style.addLine(station.getStreetName() + ", " + station.getStreetNumber());
+            if(station.getStreetNumber().equals(""))
+                style.addLine(station.getStreetName());
+            else
+                style.addLine(station.getStreetName() + ", " + station.getStreetNumber());
             style.addLine("Bikes: " + station.getBikes());
             style.addLine("Slots: " + station.getSlots());
             if(i < stations.size()-1)

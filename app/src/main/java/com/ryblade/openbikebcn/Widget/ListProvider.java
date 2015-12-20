@@ -57,7 +57,10 @@ public class ListProvider implements RemoteViewsService.RemoteViewsFactory {
         final RemoteViews remoteView = new RemoteViews(context.getPackageName(), R.layout.widget_row_layout);
         Station station = stations.get(position);
         remoteView.setTextViewText(R.id.stationId, String.valueOf(station.getId()));
-        remoteView.setTextViewText(R.id.stationAddress, station.getStreetName() + ", "+ station.getStreetNumber());
+        if(station.getStreetNumber().equals(""))
+            remoteView.setTextViewText(R.id.stationAddress, station.getStreetName());
+        else
+            remoteView.setTextViewText(R.id.stationAddress, station.getStreetName() + ", " + station.getStreetNumber());
         remoteView.setTextViewText(R.id.stationBikes, String.valueOf(station.getBikes()));
         remoteView.setTextViewText(R.id.stationSlots, String.valueOf(station.getSlots()));
 
