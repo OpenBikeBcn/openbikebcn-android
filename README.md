@@ -17,6 +17,12 @@ OpenBikeBCN is an Android application used to integrate some public transport se
 - [OpenStreetMap](https://github.com/osmdroid/osmdroid)
 - [OSMBonusPack](https://github.com/MKergall/osmbonuspack)
 
+## Screenshots
+
+![OpenBikeBcn Map](https://github.com/alexmorral/openbikesbcn/blob/master/screenshots/Screenshot_2015-12-20-21-27-41.png "Map")
+![OpenBikeBcn Route](https://github.com/alexmorral/openbikesbcn/blob/master/screenshots/Screenshot_2015-12-20-21-28-04.png "Route")
+![OpenBikeBcn Widget](https://github.com/alexmorral/openbikesbcn/blob/master/screenshots/Screenshot_2015-12-20-12-36-10.png "Widget")
+
 ## License
 This project is under MIT license. Check LICENSE for more information.
 
