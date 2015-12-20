@@ -20,3 +20,9 @@ OpenBikeBCN is an Android application used to integrate some public transport se
 ## License
 This project is under MIT license. Check LICENSE for more information.
 
+## Authors
+[Pau Madrero](https://github.com/pabloskius25) <pau.madrero@est.fib.upc.edu>
+[Alex Morral](https://github.com/alexmorral) <alex.morral@est.fib.upc.edu>
+[Albert Terrones](https://github.com/aterrones) <albert.terrones@est.fib.upc.edu>
+Victor Mateos <victor.mateos@est.fib.upc.edu>
+
